@@ -3,131 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusRevenue</title>
+  <title>FocusRevenue // Telemetry</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="popup-container">
-    <!-- Header -->
-    <header class="popup-header">
-      <div class="brand">
-        <img src="../../icons/icon32.png" alt="Logo" class="brand-icon">
+  <div class="hud-container">
+    <!-- Telemetry Header -->
+    <header class="hud-header">
+      <div class="hud-brand">
+        <div class="hud-logo-indicator"></div>
         <div>
-          <h1 class="brand-title">FocusRevenue</h1>
-          <span class="brand-subtitle" id="currentDateLabel">Hoy</span>
+          <div class="hud-title">FOCUS<span>//</span>REVENUE</div>
+          <div class="hud-subtitle" id="currentDateLabel">SYS.DATE: 2026-11-09</div>
         </div>
       </div>
-      <div id="statusBadge" class="status-badge badge-locked">
-        <span class="badge-dot"></span>
-        <span id="statusText">Bloqueo activo</span>
+      <div id="statusBadge" class="hud-status-badge status-locked">
+        <span class="status-pulse"></span>
+        <span id="statusText">LOCK ACTIVE</span>
       </div>
     </header>
 
-    <!-- Progress Card -->
-    <section class="progress-card">
-      <div class="progress-main">
-        <div class="revenue-numbers">
-          <span class="current-revenue" id="currentRevenue">0,00 €</span>
-          <span class="revenue-divider">/</span>
-          <span class="target-revenue" id="targetRevenue">200,00 €</span>
-        </div>
-        <div class="percent-tag" id="percentBadge">0%</div>
+    <!-- Main Telemetry Gauge -->
+    <section class="telemetry-card">
+      <div class="telemetry-header">
+        <span class="telemetry-label">DAILY REVENUE TARGET</span>
+        <span class="telemetry-percent" id="percentBadge">0%</span>
       </div>
 
-      <!-- Visual progress bar -->
-      <div class="progress-bar-container">
-        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+      <div class="revenue-display">
+        <span class="val-current" id="currentRevenue">0.00 €</span>
+        <span class="val-divider">/</span>
+        <span class="val-target" id="targetRevenue">200.00 €</span>
       </div>
 
-      <div class="progress-subtext" id="progressSubtext">
-        Faltan <strong>200,00 €</strong> para desbloquear distracciones hoy.
+      <!-- Segmented HUD Progress Bar -->
+      <div class="hud-progress-track">
+        <div class="hud-progress-fill" id="progressBarFill" style="width: 0%;"></div>
       </div>
 
-      <!-- Breakdown pills -->
-      <div class="breakdown-row">
-        <div class="breakdown-pill" title="Cobros confirmados vía Stripe / PayPal">
-          <span class="pill-label">Confirmado:</span>
-          <span class="pill-val" id="confirmedVal">0,00 €</span>
-        </div>
-        <div class="breakdown-pill" title="Facturas emitidas pendientes de cobro">
-          <span class="pill-label">Emitido:</span>
-          <span class="pill-val" id="issuedVal">0,00 €</span>
-        </div>
+      <div class="hud-delta" id="progressSubtext">
+        DELTA: <strong>200.00 €</strong> TO CLEAR SHIELD
       </div>
-      
-      <div class="fee-notice" id="feeNotice">
-        Fee comercial estimado (3%): <strong id="feeVal">0,00 €</strong>
+
+      <!-- Telemetry Sub-grid -->
+      <div class="hud-metrics-grid">
+        <div class="hud-metric-cell">
+          <span class="cell-label">CONFIRMED</span>
+          <span class="cell-val" id="confirmedVal">0.00 €</span>
+        </div>
+        <div class="hud-metric-cell">
+          <span class="cell-label">INVOICED</span>
+          <span class="cell-val" id="issuedVal">0.00 €</span>
+        </div>
+        <div class="hud-metric-cell">
+          <span class="cell-label">FEE (3%)</span>
+          <span class="cell-val" id="feeVal">0.00 €</span>
+        </div>
       </div>
     </section>
 
-    <!-- Emergency Active Banner (conditionally displayed) -->
-    <div id="emergencyBanner" class="emergency-active-banner hidden">
-      <div class="emergency-icon">⏱️</div>
-      <div class="emergency-details">
-        <div class="emergency-title">Salida de Emergencia Activa</div>
-        <div class="emergency-sub" id="emergencyCountdown">Quedan -- min</div>
+    <!-- Emergency Active Banner -->
+    <div id="emergencyBanner" class="hud-override-banner hidden">
+      <div class="override-info">
+        <span class="override-tag">OVERRIDE ACTIVE</span>
+        <span class="override-timer" id="emergencyCountdown">--:-- REMAINING</span>
       </div>
-      <button id="btnCancelEmergency" class="btn-text-danger" title="Restaurar bloqueo ahora">Cerrar</button>
+      <button id="btnCancelEmergency" class="btn-hud-abort" title="Restaurar bloqueo inmediatamente">ABORT</button>
     </div>
 
-    <!-- Quick Action: Fast Add Income -->
-    <section class="actions-section">
-      <div class="section-title">Registrar Facturación Rápida</div>
-      <div class="quick-buttons">
-        <button class="quick-btn" data-type="stripe" data-amount="50">+50€ Stripe</button>
-        <button class="quick-btn" data-type="paypal" data-amount="30">+30€ PayPal</button>
-        <button class="quick-btn" data-type="invoice_issued" data-amount="100">+100€ Factura</button>
+    <!-- Quick Action / Revenue Log -->
+    <section class="hud-action-card">
+      <div class="hud-action-title">TELEMETRY INJECTOR</div>
+      <div class="hud-quick-buttons">
+        <button class="btn-hud-chip" data-type="stripe" data-amount="50">+50 STRIPE</button>
+        <button class="btn-hud-chip" data-type="paypal" data-amount="30">+30 PAYPAL</button>
+        <button class="btn-hud-chip" data-type="invoice_issued" data-amount="100">+100 FACTURA</button>
       </div>
 
-      <form id="customIncomeForm" class="custom-income-form">
-        <div class="input-group">
-          <input type="number" id="inputAmount" placeholder="Monto (€)" min="1" step="any" required>
-          <select id="inputType">
-            <option value="stripe">Stripe</option>
-            <option value="paypal">PayPal</option>
-            <option value="invoice_issued">Factura</option>
-          </select>
-          <button type="submit" class="btn-primary">Añadir</button>
-        </div>
+      <form id="customIncomeForm" class="hud-input-row">
+        <input type="number" id="inputAmount" placeholder="AMOUNT (€)" min="1" step="any" required>
+        <select id="inputType">
+          <option value="stripe">STRIPE</option>
+          <option value="paypal">PAYPAL</option>
+          <option value="invoice_issued">FACTURA</option>
+        </select>
+        <button type="submit" class="btn-hud-primary">LOG</button>
       </form>
     </section>
 
-    <!-- Footer buttons -->
-    <footer class="popup-footer">
-      <button id="btnEmergencyTrigger" class="btn-secondary" title="Salida segura temporal de 10 min">
-        🛡️ Salida Segura (10m)
+    <!-- Footer Commands -->
+    <footer class="hud-footer">
+      <button id="btnEmergencyTrigger" class="btn-hud-ghost">
+        <span class="icon">⏻</span> PROTOCOLO ANULACIÓN
       </button>
-      <button id="btnOpenDashboard" class="btn-secondary">
-        ⚙️ Panel y Ajustes
+      <button id="btnOpenDashboard" class="btn-hud-ghost">
+        <span class="icon">⊞</span> MISSION CONTROL
       </button>
     </footer>
   </div>
 
-  <!-- Modal Salida de Emergencia -->
-  <div id="emergencyModal" class="modal hidden">
-    <div class="modal-content">
-      <h3 class="modal-title">🛡️ Salida de Emergencia</h3>
+  <!-- Emergency Override Modal -->
+  <div id="emergencyModal" class="hud-modal hidden">
+    <div class="hud-modal-card">
+      <div class="modal-header">
+        <div class="modal-indicator"></div>
+        <h3>PROTOCOLO DE DESVÍO DE EMERGENCIA</h3>
+      </div>
       <p class="modal-desc">
-        Desbloquea temporalmente los sitios para resolver una urgencia o atención a clientes, sin coerción.
+        Desactivación temporal de la barrera de distracción para atención crítica de clientes o resolución operativa inmediata.
       </p>
       
-      <div class="form-group">
-        <label for="emergencyDuration">Duración:</label>
+      <div class="hud-field">
+        <label>DURACIÓN DE ANULACIÓN</label>
         <select id="emergencyDuration">
-          <option value="5">5 minutos (Rápido)</option>
-          <option value="10" selected>10 minutos (Recomendado)</option>
-          <option value="20">20 minutos (Gestión urgente)</option>
+          <option value="5">05 MIN // VENTANA RÁPIDA</option>
+          <option value="10" selected>10 MIN // ESTÁNDAR RECOMENDADO</option>
+          <option value="20">20 MIN // EXTENDIDO</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="emergencyReason">Motivo (para trazabilidad):</label>
-        <input type="text" id="emergencyReason" placeholder="Ej: Responder mensaje de cliente urgente" required>
+      <div class="hud-field">
+        <label>MOTIVO (REGISTRO DE TRAZABILIDAD)</label>
+        <input type="text" id="emergencyReason" placeholder="Ej: Urgencia cliente en canal directo" required>
       </div>
 
-      <div class="modal-actions">
-        <button id="btnCloseModal" class="btn-cancel">Cancelar</button>
-        <button id="btnConfirmEmergency" class="btn-confirm-emergency">Activar Salida Segura</button>
+      <div class="hud-modal-actions">
+        <button id="btnCloseModal" class="btn-hud-outline">CANCELAR</button>
+        <button id="btnConfirmEmergency" class="btn-hud-warning">ACTIVAR ANULACIÓN</button>
       </div>
     </div>
   </div>

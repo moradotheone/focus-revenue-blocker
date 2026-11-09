@@ -1,5 +1,5 @@
 /**
- * FocusRevenue Dashboard Controller
+ * FocusRevenue Dashboard Controller (SpaceX / Starlink HUD Edition)
  */
 
 let appState = null;
@@ -15,11 +15,8 @@ async function refreshDashboard() {
   appState = await StorageService.getState();
   appProgress = BillingEngine.calculateDailyProgress(appState);
 
-  // Sync blocking rules
+  // Sync blocking rules dynamically
   await RuleManager.syncRules(appState, appProgress);
-
-  // Record session
-  await StorageService.recordSession();
 
   renderTopBar(appProgress);
   renderOverview(appState, appProgress);
@@ -27,33 +24,31 @@ async function refreshDashboard() {
   renderSites(appState);
   renderEmergencyHistory(appState);
   renderMonetization(appState, appProgress);
-  renderPilotValidation(appState);
 }
 
 function setupTabNavigation() {
-  const navItems = document.querySelectorAll('.nav-item');
+  const navItems = document.querySelectorAll('.nav-btn');
   navItems.forEach(item => {
     item.addEventListener('click', () => {
       navItems.forEach(i => i.classList.remove('active'));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.console-tab').forEach(p => p.classList.remove('active'));
 
       item.classList.add('active');
       const tabId = item.getAttribute('data-tab');
-      document.getElementById(tabId).classList.add('active');
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add('active');
 
-      // Update titles
       const tabTitles = {
-        'tab-overview': ['Resumen Diario', 'Control de foco vinculado a tu meta de facturación.'],
-        'tab-billing': ['Facturación & Pagos', 'Registro detallado, conciliación y simulador de webhooks.'],
-        'tab-sites': ['Sitios Bloqueados', 'Gestión de plataformas de distracción y dominios personalizados.'],
-        'tab-emergency': ['Salida Segura', 'Salida de emergencia temporal sin trampas ni coerción.'],
-        'tab-monetization': ['Monetización & Fee', 'Estimación del fee comercial del 3% y experimento de penalización.'],
-        'tab-pilot': ['Validación del Piloto', 'Métricas del encargo de Jorge (10 usuarios activos en < 7 días).']
+        'tab-overview': ['CONSOLE // TELEMETRY', 'TELEMETRÍA GENERAL'],
+        'tab-billing': ['CONSOLE // LEDGER', 'FACTURACIÓN & COBROS'],
+        'tab-sites': ['CONSOLE // SHIELD PROTOCOL', 'ESCUDO DE FOCO'],
+        'tab-emergency': ['CONSOLE // OVERRIDE LOG', 'ANULACIÓN DE EMERGENCIA'],
+        'tab-monetization': ['CONSOLE // COMMERCIAL MODEL', 'MODELO COMERCIAL & FEE']
       };
 
       if (tabTitles[tabId]) {
-        document.getElementById('pageTitle').textContent = tabTitles[tabId][0];
-        document.getElementById('pageSubtitle').textContent = tabTitles[tabId][1];
+        document.getElementById('deckSectionTag').textContent = tabTitles[tabId][0];
+        document.getElementById('pageTitle').textContent = tabTitles[tabId][1];
       }
     });
   });
@@ -63,16 +58,16 @@ function renderTopBar(p) {
   const indicator = document.getElementById('topStatusIndicator');
   const text = document.getElementById('topStatusText');
 
-  indicator.className = 'status-indicator';
+  indicator.className = 'hud-status';
 
   if (p.isEmergencyActive) {
-    indicator.classList.add('emergency');
-    text.textContent = `Salida de emergencia (${p.emergencyMinutesLeft}m)`;
+    indicator.classList.add('override');
+    text.textContent = `OVERRIDE ACTIVO (${p.emergencyMinutesLeft}M)`;
   } else if (p.isGoalMet) {
     indicator.classList.add('unlocked');
-    text.textContent = '🔓 Desbloqueado';
+    text.textContent = 'ESCUDO DESACTIVADO';
   } else {
-    text.textContent = '🔒 Bloqueo activo';
+    text.textContent = 'ESCUDO ACTIVO';
   }
 }
 
@@ -81,7 +76,7 @@ function renderOverview(state, p) {
   document.getElementById('currencySelect').value = state.dailyGoal.currency;
 
   document.getElementById('cardTotalRevenue').textContent = BillingEngine.formatCurrency(p.totalDailyRevenue, p.currency, p.symbol);
-  document.getElementById('cardProgressPercent').textContent = `${p.progressPercent}% de tu meta diaria`;
+  document.getElementById('cardProgressPercent').textContent = `${p.progressPercent}% de meta alcanzada`;
   document.getElementById('cardConfirmedRevenue').textContent = BillingEngine.formatCurrency(p.confirmedTotal, p.currency, p.symbol);
   document.getElementById('cardIssuedRevenue').textContent = BillingEngine.formatCurrency(p.issuedTotal, p.currency, p.symbol);
   document.getElementById('cardFeeEstimated').textContent = BillingEngine.formatCurrency(p.estimatedFee, p.currency, p.symbol);
@@ -92,11 +87,11 @@ function renderOverview(state, p) {
   fillEl.style.width = `${Math.min(100, p.progressPercent)}%`;
 
   if (p.isGoalMet) {
-    fillEl.style.background = '#10b981';
-    remainingEl.textContent = '¡Meta alcanzada!';
+    fillEl.style.background = '#00f59b';
+    remainingEl.textContent = 'OBJETIVO CUMPLIDO // ESCUDO LIBERADO';
   } else {
-    fillEl.style.background = 'linear-gradient(90deg, #4f46e5 0%, #10b981 100%)';
-    remainingEl.textContent = `Faltan ${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}`;
+    fillEl.style.background = 'linear-gradient(90deg, #00e5ff 0%, #00f59b 100%)';
+    remainingEl.textContent = `DELTA: ${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}`;
   }
 
   // Active sites chips
@@ -104,12 +99,12 @@ function renderOverview(state, p) {
   chipsContainer.innerHTML = '';
   const enabledSites = (state.blockedSites || []).filter(s => s.enabled);
   if (enabledSites.length === 0) {
-    chipsContainer.innerHTML = '<span class="text-muted">No hay sitios bloqueados actualmente.</span>';
+    chipsContainer.innerHTML = '<span class="card-explainer">No hay vectores bloqueados actualmente.</span>';
   } else {
     enabledSites.forEach(s => {
       const chip = document.createElement('span');
-      chip.className = 'domain-chip';
-      chip.textContent = `🛡️ ${s.domain}`;
+      chip.className = 'vector-chip';
+      chip.textContent = `🛡️ ${s.domain.toUpperCase()}`;
       chipsContainer.appendChild(chip);
     });
   }
@@ -127,7 +122,7 @@ function renderTransactions(state, p) {
   }
 
   if (!state.transactions || state.transactions.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #64748b;">No hay transacciones registradas todavía.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 24px; color: #4e5b6e;">NO HAY TRANSACCIONES REGISTRADAS</td></tr>';
     return;
   }
 
@@ -142,18 +137,18 @@ function renderTransactions(state, p) {
     };
 
     const sourceLabelMap = {
-      stripe: 'Stripe',
-      paypal: 'PayPal',
-      invoice_issued: 'Factura Emitida',
-      manual: 'Manual'
+      stripe: 'STRIPE',
+      paypal: 'PAYPAL',
+      invoice_issued: 'FACTURA',
+      manual: 'MANUAL'
     };
 
     const statusBadge = tx.isConfirmed
-      ? '<span class="status-tag confirmed">Confirmado</span>'
-      : '<span class="status-tag pending">Emitido (Pendiente)</span>';
+      ? '<span class="status-tag confirmed">CONFIRMADO</span>'
+      : '<span class="status-tag pending">PENDIENTE</span>';
 
     const duplicateWarn = tx.potentialDuplicate
-      ? '<span class="duplicate-flag" title="Riesgo de doble conteo">⚠️ Posible duplicado</span>'
+      ? '<span class="duplicate-flag">⚠️ POSIBLE DUPLICADO</span>'
       : '';
 
     const dateFormatted = new Date(tx.timestamp).toLocaleString('es-ES', {
@@ -167,13 +162,12 @@ function renderTransactions(state, p) {
       <td><strong>${BillingEngine.formatCurrency(tx.amount, tx.currency || 'EUR')}</strong></td>
       <td>${statusBadge}</td>
       <td>
-        <button class="btn-icon-danger btn-delete-tx" data-index="${index}" title="Eliminar registro">🗑️</button>
+        <button class="btn-del-icon btn-delete-tx" data-index="${index}" title="Eliminar registro">✕</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 
-  // Attach delete handlers
   document.querySelectorAll('.btn-delete-tx').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const idx = Number(e.currentTarget.getAttribute('data-index'));
@@ -190,24 +184,23 @@ function renderSites(state) {
 
   (state.blockedSites || []).forEach((site, index) => {
     const item = document.createElement('div');
-    item.className = 'site-item';
+    item.className = 'vector-item';
     item.innerHTML = `
-      <div class="site-info">
-        <strong>${escapeHtml(site.domain)}</strong>
-        <span>${escapeHtml(site.category || 'Personalizado')}</span>
+      <div class="vector-info">
+        <strong>${escapeHtml(site.domain.toUpperCase())}</strong>
+        <span>${escapeHtml(site.category || 'PERSONALIZADO')}</span>
       </div>
       <div style="display:flex; align-items:center; gap: 8px;">
-        <label class="switch-container">
+        <label class="hud-switch-row">
           <input type="checkbox" class="site-toggle" data-index="${index}" ${site.enabled ? 'checked' : ''}>
-          <span class="switch-slider"></span>
+          <span class="hud-slider"></span>
         </label>
-        ${site.category === 'Personalizado' ? `<button class="btn-icon-danger btn-del-domain" data-index="${index}">✕</button>` : ''}
+        ${site.category === 'Personalizado' ? `<button class="btn-del-icon btn-del-domain" data-index="${index}">✕</button>` : ''}
       </div>
     `;
     container.appendChild(item);
   });
 
-  // Attach toggles
   document.querySelectorAll('.site-toggle').forEach(t => {
     t.addEventListener('change', async (e) => {
       const idx = Number(e.target.getAttribute('data-index'));
@@ -217,7 +210,6 @@ function renderSites(state) {
     });
   });
 
-  // Attach delete custom domain
   document.querySelectorAll('.btn-del-domain').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const idx = Number(e.currentTarget.getAttribute('data-index'));
@@ -234,7 +226,7 @@ function renderEmergencyHistory(state) {
 
   const history = (state.emergencyExit && state.emergencyExit.history) || [];
   if (history.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 16px; color:#64748b;">No se han utilizado salidas de emergencia aún.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color:#4e5b6e;">NO SE HAN EJECUTADO ANULACIONES DE EMERGENCIA</td></tr>';
     return;
   }
 
@@ -245,15 +237,14 @@ function renderEmergencyHistory(state) {
     });
     tr.innerHTML = `
       <td>${dateStr}</td>
-      <td><strong>${item.durationMinutes} min</strong></td>
-      <td>${escapeHtml(item.reason || 'Sin motivo')}</td>
+      <td><strong>${item.durationMinutes} MIN</strong></td>
+      <td>${escapeHtml(item.reason || 'DIRECT OVERRIDE')}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
 function renderMonetization(state, p) {
-  // Total of all transactions recorded
   const totalAllTime = (state.transactions || []).reduce((acc, t) => acc + Number(t.amount || 0), 0);
   const feeRate = (state.monetization && state.monetization.feePercentage) ? state.monetization.feePercentage / 100 : 0.03;
   const feeAllTime = totalAllTime * feeRate;
@@ -261,7 +252,6 @@ function renderMonetization(state, p) {
   document.getElementById('monetizationTotalRev').textContent = BillingEngine.formatCurrency(totalAllTime, p.currency, p.symbol);
   document.getElementById('monetizationFeeRev').textContent = BillingEngine.formatCurrency(feeAllTime, p.currency, p.symbol);
 
-  // Penalty settings
   const penaltyToggle = document.getElementById('penaltyToggle');
   const penaltyDetails = document.getElementById('penaltyDetails');
   const penaltyAmount = document.getElementById('penaltyAmountInput');
@@ -278,48 +268,8 @@ function renderMonetization(state, p) {
   }
 }
 
-function renderPilotValidation(state) {
-  const checklist = document.getElementById('pilotChecklist');
-  checklist.innerHTML = '';
-
-  const isInstalled = true; // since extension is loaded
-  const hasConfiguredGoal = state.dailyGoal && state.dailyGoal.targetAmount > 0;
-  const hasVerifiedSession = state.pilotTelemetry && state.pilotTelemetry.totalSessions >= 1;
-  const hasTransactions = state.transactions && state.transactions.length > 0;
-  const isActiveUser = isInstalled && hasConfiguredGoal && hasVerifiedSession && hasTransactions;
-
-  // Sidebar pill
-  const pill = document.getElementById('sidebarActivationPill');
-  const pillDot = pill.querySelector('.pill-dot');
-  const pillText = document.getElementById('sidebarActivationText');
-  if (isActiveUser) {
-    pillDot.className = 'pill-dot active';
-    pillText.textContent = 'Piloto: Usuario Activo ✓';
-  } else {
-    pillDot.className = 'pill-dot';
-    pillText.textContent = 'Piloto: Configurando...';
-  }
-
-  const items = [
-    { label: 'Instalación de la extensión completada', done: isInstalled },
-    { label: `Meta de facturación configurada (${state.dailyGoal.targetAmount} ${state.dailyGoal.currency})`, done: hasConfiguredGoal },
-    { label: `Sesión de uso registrada (${state.pilotTelemetry.totalSessions || 1} sesiones verificadas)`, done: hasVerifiedSession },
-    { label: `Registro de transacciones activas (${state.transactions.length} registros)`, done: hasTransactions },
-    { label: 'Definición de Usuario Activo de Jorge CUMPLIDA', done: isActiveUser, isFinal: true }
-  ];
-
-  items.forEach(it => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-      <span class="check-icon ${it.done ? 'done' : 'pending'}">${it.done ? '✓' : '○'}</span>
-      <span style="${it.isFinal ? 'font-weight:700; color:' + (it.done ? '#065f46' : '#92400e') : ''}">${it.label}</span>
-    `;
-    checklist.appendChild(li);
-  });
-}
-
 function setupEventListeners() {
-  // Goal setting form
+  // Goal setting
   document.getElementById('goalSettingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const target = Number(document.getElementById('targetAmountInput').value);
@@ -329,7 +279,6 @@ function setupEventListeners() {
     appState.dailyGoal.targetAmount = target;
     appState.dailyGoal.currency = currency;
     appState.dailyGoal.symbol = symbolMap[currency] || '€';
-    appState.pilotTelemetry.hasConfiguredGoal = true;
 
     await StorageService.setState(appState);
     await refreshDashboard();
@@ -346,7 +295,7 @@ function setupEventListeners() {
     await simulateAndAdd('invoice_issued', 150.00);
   });
 
-  // Add Manual Transaction Form
+  // Add Manual Transaction
   document.getElementById('addTxForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const type = document.getElementById('txType').value;
@@ -375,9 +324,9 @@ function setupEventListeners() {
     await refreshDashboard();
   });
 
-  // Clear all transactions
+  // Clear all
   document.getElementById('btnClearAllTxs').addEventListener('click', async () => {
-    if (confirm('¿Deseas vaciar el historial de transacciones registradas?')) {
+    if (confirm('¿Vaciar el historial de transacciones registradas?')) {
       appState.transactions = [];
       await StorageService.setState(appState);
       await refreshDashboard();
@@ -392,7 +341,6 @@ function setupEventListeners() {
 
     if (domain) {
       if (!appState.blockedSites) appState.blockedSites = [];
-      // avoid duplicates
       if (!appState.blockedSites.some(s => s.domain === domain)) {
         appState.blockedSites.push({
           domain,
@@ -406,10 +354,10 @@ function setupEventListeners() {
     }
   });
 
-  // Trigger Emergency Exit from Tab
+  // Trigger Emergency Exit
   document.getElementById('btnTabTriggerEmergency').addEventListener('click', async () => {
     const duration = Number(document.getElementById('tabEmergencyMinutes').value) || 10;
-    const reason = document.getElementById('tabEmergencyReason').value.trim() || 'Gestión cliente urgente';
+    const reason = document.getElementById('tabEmergencyReason').value.trim() || 'Atención cliente urgente';
 
     appState.emergencyExit.isActive = true;
     appState.emergencyExit.durationMinutes = duration;
@@ -424,10 +372,9 @@ function setupEventListeners() {
     await StorageService.setState(appState);
     document.getElementById('tabEmergencyReason').value = '';
     await refreshDashboard();
-    alert(`Salida de emergencia activada por ${duration} minutos. Sitios desbloqueados temporalmente.`);
   });
 
-  // Penalty experiment toggle
+  // Penalty Toggle
   document.getElementById('penaltyToggle').addEventListener('change', async (e) => {
     if (!appState.monetization) appState.monetization = {};
     appState.monetization.penaltyEnabled = e.target.checked;
@@ -440,42 +387,6 @@ function setupEventListeners() {
     if (!appState.monetization) appState.monetization = {};
     appState.monetization.penaltyAmount = Number(e.target.value) || 15;
     await StorageService.setState(appState);
-  });
-
-  // Export Pilot Data
-  document.getElementById('btnExportPilotData').addEventListener('click', () => {
-    const exportData = {
-      reportType: 'FocusRevenue_Pilot_Validation_Report',
-      generatedAt: new Date().toISOString(),
-      userId: appState.pilotTelemetry.userId,
-      activeUserVerified: appState.pilotTelemetry.activeUserVerified,
-      installedAt: appState.pilotTelemetry.installedAt,
-      totalSessionsRecorded: appState.pilotTelemetry.totalSessions,
-      dailyGoalConfigured: appState.dailyGoal,
-      summary: appProgress,
-      transactionsCount: appState.transactions.length,
-      emergencyExitsCount: (appState.emergencyExit.history || []).length,
-      nonClinicalGuarantee: 'Confirmed: No clinical diagnoses or health data processed'
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pilot_validation_${appState.pilotTelemetry.userId}_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  // Reset Pilot Data
-  document.getElementById('btnResetPilotData').addEventListener('click', async () => {
-    if (confirm('¿Restablecer el estado inicial de fábrica?')) {
-      localStorage.removeItem('focusRevenueState');
-      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.remove(['focusRevenueState']);
-      }
-      location.reload();
-    }
   });
 
   // Quick Add Top

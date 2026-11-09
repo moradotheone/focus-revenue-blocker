@@ -1,5 +1,5 @@
 /**
- * FocusRevenue Popup Controller
+ * FocusRevenue Popup Controller (SpaceX / Starlink HUD Edition)
  */
 
 let appState = null;
@@ -19,9 +19,6 @@ async function refreshUI() {
   // Sync rules dynamically
   await RuleManager.syncRules(appState, appProgress);
 
-  // Record active session
-  await StorageService.recordSession();
-
   renderProgress(appProgress);
   renderStatusBadge(appProgress);
   renderEmergencyBanner(appProgress, appState);
@@ -38,18 +35,20 @@ function renderProgress(p) {
   const feeEl = document.getElementById('feeVal');
   const dateEl = document.getElementById('currentDateLabel');
 
-  dateEl.textContent = p.today;
+  dateEl.textContent = `SYS.DATE: ${p.today}`;
   currentEl.textContent = BillingEngine.formatCurrency(p.totalDailyRevenue, p.currency, p.symbol);
   targetEl.textContent = BillingEngine.formatCurrency(p.target, p.currency, p.symbol);
   percentBadge.textContent = `${p.progressPercent}%`;
   fillEl.style.width = `${Math.min(100, p.progressPercent)}%`;
 
   if (p.isGoalMet) {
-    subtextEl.innerHTML = `🎉 <strong>¡Meta diaria alcanzada!</strong> Sitios desbloqueados.`;
-    fillEl.style.background = '#10b981';
+    subtextEl.innerHTML = `TARGET ACHIEVED // ALL VECTORS CLEARED`;
+    fillEl.style.background = '#00f59b';
+    fillEl.style.boxShadow = '0 0 10px rgba(0, 245, 155, 0.4)';
   } else {
-    subtextEl.innerHTML = `Faltan <strong>${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}</strong> para desbloquear distracciones hoy.`;
-    fillEl.style.background = 'linear-gradient(90deg, #4f46e5 0%, #10b981 100%)';
+    subtextEl.innerHTML = `DELTA: <strong>${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}</strong> TO CLEAR SHIELD`;
+    fillEl.style.background = 'linear-gradient(90deg, #00e5ff 0%, #00f59b 100%)';
+    fillEl.style.boxShadow = '0 0 10px rgba(0, 229, 255, 0.4)';
   }
 
   confirmedEl.textContent = BillingEngine.formatCurrency(p.confirmedTotal, p.currency, p.symbol);
@@ -61,17 +60,17 @@ function renderStatusBadge(p) {
   const badge = document.getElementById('statusBadge');
   const text = document.getElementById('statusText');
 
-  badge.className = 'status-badge';
+  badge.className = 'hud-status-badge';
 
   if (p.isEmergencyActive) {
-    badge.classList.add('badge-emergency');
-    text.textContent = 'Salida de emergencia';
+    badge.classList.add('status-override');
+    text.textContent = 'OVERRIDE ACTIVE';
   } else if (p.isGoalMet) {
-    badge.classList.add('badge-unlocked');
-    text.textContent = 'Desbloqueado';
+    badge.classList.add('status-unlocked');
+    text.textContent = 'CLEARED';
   } else {
-    badge.classList.add('badge-locked');
-    text.textContent = 'Bloqueo activo';
+    badge.classList.add('status-locked');
+    text.textContent = 'LOCK ACTIVE';
   }
 }
 
@@ -84,7 +83,7 @@ function renderEmergencyBanner(p, state) {
     const remainingSec = Math.max(0, Math.floor((state.emergencyExit.expiresAt - Date.now()) / 1000));
     const mins = Math.floor(remainingSec / 60);
     const secs = remainingSec % 60;
-    countdown.textContent = `Quedan ${mins}:${secs < 10 ? '0' : ''}${secs} min (${state.emergencyExit.reason || 'Urgencia'})`;
+    countdown.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs} REMAINING (${state.emergencyExit.reason || 'DIRECT OVERRIDE'})`;
   } else {
     banner.classList.add('hidden');
   }
@@ -104,8 +103,8 @@ function startCountdownTicker() {
 }
 
 function setupEventListeners() {
-  // Quick buttons
-  document.querySelectorAll('.quick-btn').forEach(btn => {
+  // Quick injection buttons
+  document.querySelectorAll('.btn-hud-chip').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const type = e.target.getAttribute('data-type');
       const amount = Number(e.target.getAttribute('data-amount'));
@@ -113,7 +112,7 @@ function setupEventListeners() {
     });
   });
 
-  // Custom income form
+  // Custom injection form
   const form = document.getElementById('customIncomeForm');
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -142,7 +141,7 @@ function setupEventListeners() {
 
   btnConfirm.addEventListener('click', async () => {
     const duration = Number(document.getElementById('emergencyDuration').value) || 10;
-    const reason = document.getElementById('emergencyReason').value.trim() || 'Gestión urgente cliente';
+    const reason = document.getElementById('emergencyReason').value.trim() || 'Gestión cliente urgente';
 
     appState.emergencyExit.isActive = true;
     appState.emergencyExit.durationMinutes = duration;
@@ -167,7 +166,7 @@ function setupEventListeners() {
     await refreshUI();
   });
 
-  // Open Dashboard / Options
+  // Open Mission Control (Dashboard)
   document.getElementById('btnOpenDashboard').addEventListener('click', () => {
     if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();

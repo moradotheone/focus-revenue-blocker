@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusRevenue MVP — Entorno de Demostración & Validación</title>
+  <title>FOCUS//REVENUE — SPACEX/STARLINK DESIGN SYSTEM PREVIEW</title>
   <link rel="stylesheet" href="preview.css">
 </head>
 <body>
   <!-- Header Bar -->
   <header class="preview-header">
     <div class="header-left">
-      <img src="../icons/icon32.png" alt="Logo" class="preview-logo">
+      <div class="brand-beacon"></div>
       <div>
-        <span class="preview-title">FocusRevenue — Prototipo MVP v0</span>
-        <span class="preview-badge">Entorno Interactivo de Validación</span>
+        <span class="preview-title">FOCUS<span>//</span>REVENUE CONSOLE</span>
+        <span class="preview-badge">STARLINK // HUD DESIGN SYSTEM</span>
       </div>
     </div>
     
     <div class="view-switcher">
-      <button class="switch-btn active" data-view="dashboard">📊 Panel Principal (Options)</button>
-      <button class="switch-btn" data-view="popup">📱 Popup de Extensión</button>
-      <button class="switch-btn" data-view="blocked">🛑 Pantalla de Bloqueo (Twitter)</button>
-      <button class="switch-btn" data-view="guide">📋 Guía de Instalación Chrome</button>
+      <button class="switch-btn active" data-view="dashboard">⊞ MISSION CONTROL</button>
+      <button class="switch-btn" data-view="popup">📱 HUD POPUP</button>
+      <button class="switch-btn" data-view="blocked">🛡️ ESCUDO DE FOCO (X.COM)</button>
+      <button class="switch-btn" data-view="guide">📋 GUÍA DE CARGA MV3</button>
     </div>
   </header>
 
@@ -36,7 +36,7 @@
     <div class="stage-frame" id="frame-popup">
       <div class="popup-phone-mockup">
         <div class="browser-tab-bar">
-          <span class="tab-title">Chrome Extension Popup</span>
+          <span class="tab-title">CHROME EXTENSION POPUP // HUD</span>
         </div>
         <iframe src="../src/popup/popup.html" title="Popup" class="popup-iframe"></iframe>
       </div>
@@ -50,7 +50,7 @@
             <span></span><span></span><span></span>
           </div>
           <div class="mockup-address-bar">
-            🔒 https://x.com/home ➔ [FocusRevenue Redirection]
+            🔒 https://x.com/home ➔ [FOCUS//REVENUE SHIELD REDIRECTION]
           </div>
         </div>
         <iframe src="../src/blocked/blocked.html?blocked=x.com" title="Blocked Interstitial" class="blocked-iframe"></iframe>
@@ -60,9 +60,9 @@
     <!-- View 4: Installation Guide -->
     <div class="stage-frame" id="frame-guide">
       <div class="guide-container">
-        <h2>🚀 Cómo cargar y probar esta extensión en tu navegador (Chrome, Brave, Edge)</h2>
+        <h2>🚀 Instalación en Chrome, Brave o Edge (Manifest V3)</h2>
         <p class="guide-lead">
-          FocusRevenue está construida bajo el estándar oficial <strong>Manifest V3</strong>. Puedes instalarla en menos de 30 segundos sin empaquetar:
+          FocusRevenue está construido bajo el estándar oficial <strong>Chromium Manifest V3</strong> con diseño minimalista inspirado en la telemetría de SpaceX / Starlink:
         </p>
 
         <ol class="steps-list">
@@ -79,24 +79,13 @@
             Haz clic en el botón <strong>«Cargar descomprimida»</strong> (Load unpacked).
           </li>
           <li>
-            <strong>Selecciona esta carpeta del proyecto:</strong>
-            <code>/Users/moradotheone/.gemini/antigravity/scratch/focus-revenue-blocker</code>
+            <strong>Selecciona la carpeta del proyecto:</strong>
+            <code>/Users/moradotheone/Documents/devIA/focus-revenue-blocker</code>
           </li>
           <li>
-            <strong>¡Listo!</strong> Verás el icono de FocusRevenue en la barra de extensiones. Al fijarlo (pin), podrás abrir el popup, configurar tu meta diaria de facturación y comprobar cómo bloquea automáticamente los sitios de distracción seleccionados hasta alcanzar tu objetivo.
+            <strong>¡Listo!</strong> Fija el icono en la barra de extensiones. Al abrir cualquier sitio restringido (Twitter, YouTube, Reddit, Instagram...) la barrera de foco te mostrará la telemetría en tiempo real y se desbloqueará automáticamente al alcanzar tu meta de facturación.
           </li>
         </ol>
-
-        <div class="info-card">
-          <h4>🧪 Verificación de las Hipótesis del Proyecto (Jorge 07/11/2026):</h4>
-          <ul>
-            <li><strong>H-A1 (Mecanismo de compromiso):</strong> Bloquea redes y ocio digital hasta cumplir la meta diaria elegida libremente.</li>
-            <li><strong>H-A2 (Comprobación fiable de facturación):</strong> Soporta pagos confirmados Stripe/PayPal y facturas emitidas, con alerta automática contra riesgo de doble conteo.</li>
-            <li><strong>H-A3 (Salida de Emergencia Segura):</strong> Desbloqueo temporal sin coerción (5, 10 o 20 min) para emergencias y atención laboral.</li>
-            <li><strong>H-A4 (Fee del 3% y penalización optativa):</strong> Cálculo transparente del 3% sobre facturación diaria y cláusula de penalización voluntaria con consentimiento explícito.</li>
-            <li><strong>Garantía no-clínica:</strong> Enfoque comercial de productividad. Cero recolección de datos de salud o TDAH.</li>
-          </ul>
-        </div>
       </div>
     </div>
   </main>

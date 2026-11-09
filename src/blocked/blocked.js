@@ -1,17 +1,17 @@
 /**
- * Blocked Interstitial Controller
+ * Blocked Interstitial Controller (SpaceX / Starlink HUD Edition)
  */
 
 let appState = null;
 let appProgress = null;
 let targetDomain = '';
 
-const MOTIVATIONAL_QUOTES = [
-  "«Factura primero, scrollea después. Tu atención es el activo más caro de tu negocio.»",
-  "«El scroll pasivo no paga tus servidores ni tus facturas. El valor para tus clientes sí.»",
-  "«Cada venta confirmada hoy es libertad y foco para mañana.»",
-  "«Cierra la siguiente llamada, emite la siguiente propuesta. Las redes seguirán ahí cuando termines.»",
-  "«La fricción no es tu enemiga: es el guardián de tus ingresos.»"
+const TACTICAL_QUOTES = [
+  "«Factura primero, scrollea después. Tu atención es el activo más costoso de tu empresa.»",
+  "«El consumo pasivo no financia tu infraestructura ni tus proyectos. La tracción real sí.»",
+  "«Cada cobro confirmado hoy es autonomía y foco asegurado para mañana.»",
+  "«Cierra la siguiente propuesta o llamada de cliente. Las redes seguirán ahí al alcanzar la meta.»",
+  "«La barrera no te detiene: protege tu capacidad de generar ingresos.»"
 ];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -23,14 +23,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function parseTargetDomain() {
   const urlParams = new URLSearchParams(window.location.search);
-  targetDomain = urlParams.get('blocked') || 'sitio-web-restringido';
-  document.getElementById('blockedDomainTag').textContent = targetDomain;
+  targetDomain = urlParams.get('blocked') || 'DOMINIO_RESTRINGIDO';
+  document.getElementById('blockedDomainTag').textContent = `VECTOR // ${targetDomain.toUpperCase()}`;
 }
 
 function selectRandomQuote() {
   const quoteEl = document.getElementById('quoteText');
-  const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length);
-  quoteEl.textContent = MOTIVATIONAL_QUOTES[randomIndex];
+  const randomIndex = Math.floor(Math.random() * TACTICAL_QUOTES.length);
+  quoteEl.textContent = TACTICAL_QUOTES[randomIndex];
 }
 
 async function refreshData() {
@@ -58,17 +58,17 @@ function renderProgress(p) {
   percentText.textContent = `${p.progressPercent}%`;
   fillEl.style.width = `${Math.min(100, p.progressPercent)}%`;
 
-  calloutEl.innerHTML = `Te faltan <strong>${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}</strong> para desbloquear las distracciones hoy.`;
+  calloutEl.innerHTML = `DELTA: <strong>${BillingEngine.formatCurrency(p.remainingToGoal, p.currency, p.symbol)}</strong> PARA DESBLOQUEAR`;
 }
 
 function showUnlockedState() {
   document.getElementById('meterFill').style.width = '100%';
-  document.getElementById('meterFill').style.background = '#10b981';
+  document.getElementById('meterFill').style.background = '#00f59b';
   document.getElementById('quickLogCard').classList.add('hidden');
   document.getElementById('successBox').classList.remove('hidden');
 
   const btnContinue = document.getElementById('btnContinueToSite');
-  btnContinue.textContent = `Continuar a ${targetDomain}`;
+  btnContinue.textContent = `CONTINUAR A ${targetDomain.toUpperCase()}`;
   btnContinue.onclick = () => {
     let destination = targetDomain.startsWith('http') ? targetDomain : `https://${targetDomain}`;
     window.location.href = destination;
@@ -77,7 +77,7 @@ function showUnlockedState() {
 
 function setupEventListeners() {
   // Quick pills
-  document.querySelectorAll('.pill-btn').forEach(btn => {
+  document.querySelectorAll('.btn-chip, .pill-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const type = e.target.getAttribute('data-type');
       const amount = Number(e.target.getAttribute('data-amount'));
@@ -131,7 +131,6 @@ function setupEventListeners() {
 
     modal.classList.add('hidden');
 
-    // Immediately redirect to the requested destination
     let destination = targetDomain.startsWith('http') ? targetDomain : `https://${targetDomain}`;
     window.location.href = destination;
   });

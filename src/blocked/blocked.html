@@ -3,117 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sitio Pausado — FocusRevenue</title>
+  <title>FOCUS//SHIELD — RESTRICTED ACCESS</title>
   <link rel="stylesheet" href="blocked.css">
 </head>
 <body>
-  <div class="block-card">
-    <!-- Card Header -->
-    <div class="brand-badge">
-      <img src="../../icons/icon48.png" alt="FocusRevenue Logo" class="brand-logo">
-      <span>FocusRevenue</span>
+  <!-- Starfield / Orbital background grid -->
+  <div class="orbital-grid"></div>
+
+  <div class="hud-blocked-card">
+    <!-- Header Indicator -->
+    <div class="hud-topline">
+      <div class="topline-brand">
+        <span class="blinking-dot"></span>
+        <span class="brand-text">FOCUS<span>//</span>REVENUE SHIELD</span>
+      </div>
+      <div class="vector-tag" id="blockedDomainTag">VECTOR // RESTRICTED</div>
     </div>
 
-    <div class="site-alert">
-      <span class="site-tag" id="blockedDomainTag">Sitio web</span>
-      <h1 class="main-heading">Pausado por tu meta diaria</h1>
+    <!-- Main Message -->
+    <div class="main-alert">
+      <h1 class="hud-headline">DISTRACTION SHIELD ENGAGED</h1>
+      <p class="hud-lead">Acceso pausado. Completa tu objetivo económico diario para restablecer el vector.</p>
     </div>
 
-    <!-- Progress Visualization -->
-    <div class="progress-box">
-      <div class="progress-header">
-        <span class="metric-label">Progreso de facturación hoy</span>
-        <span class="metric-percent" id="progressPercentText">0%</span>
+    <!-- Telemetry Box -->
+    <div class="telemetry-deck">
+      <div class="telemetry-bar-info">
+        <span class="metric-tag">REVENUE PROGRESS</span>
+        <span class="metric-score" id="progressPercentText">0%</span>
       </div>
-      <div class="meter-bar">
-        <div class="meter-fill" id="meterFill" style="width: 0%;"></div>
+      
+      <div class="precision-track">
+        <div class="precision-fill" id="meterFill" style="width: 0%;"></div>
       </div>
-      <div class="revenue-summary">
-        <span class="rev-current" id="currentRevText">0,00 €</span>
-        <span class="rev-separator">/</span>
-        <span class="rev-target" id="targetRevText">200,00 €</span>
+
+      <div class="telemetry-values">
+        <span class="current-val" id="currentRevText">0.00 €</span>
+        <span class="divider">/</span>
+        <span class="target-val" id="targetRevText">200.00 €</span>
       </div>
-      <div class="remaining-callout" id="remainingCallout">
-        Te faltan <strong>0,00 €</strong> para desbloquear las distracciones hoy.
+
+      <div class="delta-callout" id="remainingCallout">
+        DELTA: <strong>0.00 €</strong> PARA DESBLOQUEAR
       </div>
     </div>
 
-    <!-- Motivation Quote -->
-    <div class="quote-box">
-      <span class="quote-icon">💡</span>
-      <p class="quote-text" id="quoteText">
-        «Factura primero, scrollea después. Tu atención es el recurso más caro de tu negocio.»
-      </p>
+    <!-- Tactical Quote -->
+    <div class="tactical-quote">
+      <span class="quote-prefix">//</span>
+      <p id="quoteText">«Factura primero, scrollea después. Tu atención es el activo más costoso de tu empresa.»</p>
     </div>
 
-    <!-- Quick Log Section -->
-    <div class="quick-log-card" id="quickLogCard">
-      <div class="card-subtitle">¿Acabas de cerrar una venta o emitir factura?</div>
-      <div class="quick-pills">
-        <button class="pill-btn" data-type="stripe" data-amount="50">+50€ Stripe</button>
-        <button class="pill-btn" data-type="paypal" data-amount="30">+30€ PayPal</button>
-        <button class="pill-btn" data-type="invoice_issued" data-amount="100">+100€ Factura</button>
+    <!-- Fast Telemetry Injection -->
+    <div class="injection-panel" id="quickLogCard">
+      <div class="panel-label">INYECCIÓN RÁPIDA DE COBRO CONFIRMADO O FACTURA</div>
+      <div class="chips-row">
+        <button class="btn-chip pill-btn" data-type="stripe" data-amount="50">+50 STRIPE</button>
+        <button class="btn-chip pill-btn" data-type="paypal" data-amount="30">+30 PAYPAL</button>
+        <button class="btn-chip pill-btn" data-type="invoice_issued" data-amount="100">+100 FACTURA</button>
       </div>
 
-      <form id="inlineIncomeForm" class="inline-form">
-        <input type="number" id="inlineAmount" placeholder="Monto (€)" min="1" step="any" required>
+      <form id="inlineIncomeForm" class="injection-form">
+        <input type="number" id="inlineAmount" placeholder="MONTO (€)" min="1" step="any" required>
         <select id="inlineType">
-          <option value="stripe">Stripe</option>
-          <option value="paypal">PayPal</option>
-          <option value="invoice_issued">Factura</option>
+          <option value="stripe">STRIPE</option>
+          <option value="paypal">PAYPAL</option>
+          <option value="invoice_issued">FACTURA</option>
         </select>
-        <button type="submit" class="btn-submit-inline">Registrar</button>
+        <button type="submit" class="btn-inject">REGISTRAR</button>
       </form>
     </div>
 
-    <!-- Unlocked Success Box (shown if goal was reached) -->
-    <div class="success-box hidden" id="successBox">
-      <div class="success-icon">🎉</div>
-      <h2>¡Meta diaria alcanzada!</h2>
-      <p>Has cumplido tu objetivo de facturación de hoy. Disfruta de tu tiempo libre con tranquilidad.</p>
-      <button id="btnContinueToSite" class="btn-success-continue">Continuar al sitio</button>
+    <!-- Cleared State Card -->
+    <div class="cleared-deck hidden" id="successBox">
+      <div class="cleared-indicator"></div>
+      <h2>TARGET ACHIEVED // SHIELD CLEARED</h2>
+      <p>Has alcanzado tu meta diaria de facturación. Todos los vectores de acceso quedan liberados.</p>
+      <button id="btnContinueToSite" class="btn-cleared-proceed">CONTINUAR AL SITIO</button>
     </div>
 
-    <!-- Safe Emergency Exit & Navigation -->
-    <div class="footer-actions">
-      <button id="btnEmergencyTrigger" class="btn-emergency" title="Permite acceso temporal de 10 min por urgencias sin penalización">
-        🛡️ Salida de Emergencia (10 min)
+    <!-- Command Actions -->
+    <div class="command-bar">
+      <button id="btnEmergencyTrigger" class="btn-override">
+        ⏻ PROTOCOLO ANULACIÓN (10 MIN)
       </button>
-      <a href="../dashboard/dashboard.html" class="link-dashboard">
-        ⚙️ Panel y Ajustes
+      <a href="../dashboard/dashboard.html" class="link-deck">
+        ⊞ MISSION CONTROL
       </a>
-    </div>
-
-    <div class="compliance-note">
-      FocusRevenue: Sin recolección de datos de salud ni datos bancarios de clientes. Herramienta de productividad orientada al compromiso comercial.
     </div>
   </div>
 
-  <!-- Emergency Modal -->
-  <div id="emergencyModal" class="modal hidden">
-    <div class="modal-content">
-      <h3>🛡️ Salida de Emergencia Temporal</h3>
+  <!-- Emergency Override Modal -->
+  <div id="emergencyModal" class="hud-modal hidden">
+    <div class="hud-modal-card">
+      <div class="modal-top">
+        <span class="alert-square"></span>
+        <h3>DESVÍO TEMPORAL DE EMERGENCIA</h3>
+      </div>
       <p>
-        Si necesitas acceder a este sitio por motivos profesionales o urgentes, puedes desbloquearlo temporalmente.
+        Desbloqueo temporal sin coerción para responder a incidencias críticas o atención inmediata a clientes.
       </p>
       
-      <div class="form-group">
-        <label for="emergencyDuration">Minutos de desbloqueo:</label>
+      <div class="hud-field">
+        <label>VENTANA TEMPORAL</label>
         <select id="emergencyDuration">
-          <option value="5">5 minutos</option>
-          <option value="10" selected>10 minutos (Recomendado)</option>
-          <option value="20">20 minutos</option>
+          <option value="5">05 MINUTOS (RÁPIDO)</option>
+          <option value="10" selected>10 MINUTOS (RECOMENDADO)</option>
+          <option value="20">20 MINUTOS (EXTENDIDO)</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="emergencyReason">Motivo de la urgencia:</label>
-        <input type="text" id="emergencyReason" placeholder="Ej: Responder mensaje de cliente urgente" required>
+      <div class="hud-field">
+        <label>MOTIVO DEL DESVÍO</label>
+        <input type="text" id="emergencyReason" placeholder="Ej: Responder ticket urgente de cliente" required>
       </div>
 
-      <div class="modal-buttons">
-        <button id="btnCancelModal" class="btn-secondary">Cancelar</button>
-        <button id="btnConfirmEmergency" class="btn-warning">Activar y Continuar</button>
+      <div class="modal-actions">
+        <button id="btnCancelModal" class="btn-ghost">CANCELAR</button>
+        <button id="btnConfirmEmergency" class="btn-confirm-override">CONFIRMAR ANULACIÓN</button>
       </div>
     </div>
   </div>
