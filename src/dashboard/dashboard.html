@@ -8,7 +8,6 @@
 </head>
 <body>
   <div class="deck-layout">
-    <!-- Starfield overlay -->
     <div class="deck-grid-bg"></div>
 
     <!-- Sidebar / Mission Navigation -->
@@ -28,7 +27,7 @@
         </button>
         <button class="nav-btn" data-tab="tab-billing">
           <span class="nav-num">02</span>
-          <span class="nav-label">FACTURACIÓN & COBROS</span>
+          <span class="nav-label">PASARELAS & FACTURAS</span>
         </button>
         <button class="nav-btn" data-tab="tab-sites">
           <span class="nav-num">03</span>
@@ -65,7 +64,9 @@
             <span class="pulse"></span>
             <span id="topStatusText">ESCUDO ACTIVO</span>
           </div>
-          <button class="btn-cyan-action" id="btnQuickAddTop">+ REGISTRAR COBRO</button>
+          <button class="btn-cyan-action" id="btnTopSyncPayments" title="Consultar pasarelas de pago configuradas">
+            🔄 SINCRONIZAR PASARELAS
+          </button>
         </div>
       </header>
 
@@ -135,15 +136,86 @@
         </div>
       </section>
 
-      <!-- TAB 2: FACTURACIÓN & COBROS -->
+      <!-- TAB 2: PASARELAS & FACTURAS -->
       <section class="console-tab" id="tab-billing">
+        <!-- Master Gateways Card -->
+        <div class="hud-card">
+          <div class="card-header-row">
+            <div>
+              <div class="card-tag">INTEGRACIÓN OFICIAL DIRECTA // STRIPE & PAYPAL</div>
+              <h3 class="card-heading">Pasarelas de Pago Oficiales</h3>
+              <p class="card-explainer">Conecta tus claves de solo lectura para extraer automáticamente los cobros del día sin intermediarios.</p>
+            </div>
+            <button class="btn-cyan-action" id="btnSyncAllGateways">🔄 SINCRONIZAR AHORA</button>
+          </div>
+
+          <div class="gateways-grid">
+            <!-- Stripe Gateway Box -->
+            <div class="gateway-box">
+              <div class="gateway-top">
+                <div class="gateway-title">
+                  <span class="gateway-badge stripe">STRIPE</span>
+                  <span class="gateway-status" id="stripeStatusBadge">DESCONECTADO</span>
+                </div>
+                <label class="hud-switch-row">
+                  <input type="checkbox" id="stripeEnabledToggle">
+                  <span class="hud-slider"></span>
+                </label>
+              </div>
+              <div class="grid-field">
+                <label>RESTRICTED API KEY (rk_live_... / rk_test_...)</label>
+                <input type="password" id="stripeApiKeyInput" placeholder="rk_live_••••••••••••••••••••">
+              </div>
+              <div class="gateway-actions">
+                <button class="btn-hud-ghost btn-sm" id="btnTestStripe">PROBAR CONEXIÓN</button>
+                <span class="sync-timestamp" id="stripeLastSyncText">Nunca</span>
+              </div>
+            </div>
+
+            <!-- PayPal Gateway Box -->
+            <div class="gateway-box">
+              <div class="gateway-top">
+                <div class="gateway-title">
+                  <span class="gateway-badge paypal">PAYPAL</span>
+                  <span class="gateway-status" id="paypalStatusBadge">DESCONECTADO</span>
+                </div>
+                <label class="hud-switch-row">
+                  <input type="checkbox" id="paypalEnabledToggle">
+                  <span class="hud-slider"></span>
+                </label>
+              </div>
+              <div class="grid-field">
+                <label>CLIENT ID</label>
+                <input type="text" id="paypalClientIdInput" placeholder="Client ID de la aplicación PayPal">
+              </div>
+              <div class="grid-field">
+                <label>CLIENT SECRET</label>
+                <input type="password" id="paypalClientSecretInput" placeholder="••••••••••••••••••••">
+              </div>
+              <div class="sandbox-toggle-row">
+                <label class="hud-checkbox-label">
+                  <input type="checkbox" id="paypalSandboxToggle"> Modo Sandbox (Pruebas)
+                </label>
+              </div>
+              <div class="gateway-actions">
+                <button class="btn-hud-ghost btn-sm" id="btnTestPaypal">PROBAR CONEXIÓN</button>
+                <span class="sync-timestamp" id="paypalLastSyncText">Nunca</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="security-disclaimer">
+            🔒 <strong>Arquitectura de Privacidad Estricta:</strong> Las llamadas a Stripe y PayPal se realizan 100% de cliente a servidor oficial. Las claves se almacenan exclusivamente en tu navegador local (`chrome.storage.local`). Jamás se guardan números de tarjeta, emails ni datos personales de los clientes.
+          </div>
+        </div>
+
         <!-- Simulator Bar -->
         <div class="hud-card sim-card">
           <div class="sim-inner">
             <div>
-              <div class="card-tag">INYECCIÓN DE EVENTOS // SIMULADOR</div>
-              <h3 class="card-heading">Simulador de Webhooks y Pagos</h3>
-              <p class="card-explainer">Inyecta eventos de cobro instantáneos para verificar el desbloqueo sin vincular pasarelas bancarias reales.</p>
+              <div class="card-tag">INYECCIÓN DE EVENTOS // SIMULADOR DE PRUEBAS</div>
+              <h3 class="card-heading">Simulador Rápido de Webhooks</h3>
+              <p class="card-explainer">Inyecta cobros ficticios para probar el comportamiento de desbloqueo sin claves reales.</p>
             </div>
             <div class="sim-buttons">
               <button class="btn-sim stripe" id="btnSimStripe">+ €85 STRIPE</button>
@@ -164,14 +236,14 @@
 
         <!-- Manual Logging Terminal -->
         <div class="hud-card">
-          <div class="card-tag">REGISTRO MANUAL</div>
+          <div class="card-tag">REGISTRO MANUAL DE FACTURA O INGRESO</div>
           <form id="addTxForm" class="tx-input-grid">
             <div class="grid-field">
-              <label>ORIGEN DEL COBRO</label>
+              <label>ORIGEN DEL INGRESO</label>
               <select id="txType" required>
+                <option value="invoice_issued">Factura Emitida (Pendiente de Cobro)</option>
                 <option value="stripe">Stripe (Cobro Confirmado)</option>
                 <option value="paypal">PayPal (Cobro Confirmado)</option>
-                <option value="invoice_issued">Factura Emitida (Pendiente)</option>
                 <option value="manual">Otro Cobro Verificado</option>
               </select>
             </div>
@@ -181,7 +253,7 @@
             </div>
             <div class="grid-field span-2">
               <label>CONCEPTO / DESCRIPCIÓN</label>
-              <input type="text" id="txDescription" placeholder="Ej: Servicio de consultoría estratégica cliente X" required>
+              <input type="text" id="txDescription" placeholder="Ej: Factura #FAC-2026-44 — Consultoría estratégica" required>
             </div>
             <div class="grid-actions span-2">
               <button type="submit" class="btn-cyan-action">INCORPORAR AL REGISTRO</button>
@@ -192,7 +264,7 @@
         <!-- Ledger Table -->
         <div class="hud-card">
           <div class="ledger-header">
-            <div class="card-tag">HISTORIAL DE TRANSACCIONES REGISTRADAS</div>
+            <div class="card-tag">HISTORIAL DE TRANSACCIONES DEL DÍA</div>
             <button class="btn-hud-ghost btn-sm" id="btnClearAllTxs">LIMPIAR HISTORIAL</button>
           </div>
           <div class="table-container">
@@ -331,6 +403,7 @@
   <script src="../lib/storage.js"></script>
   <script src="../lib/billing.js"></script>
   <script src="../lib/rules.js"></script>
+  <script src="../lib/payments.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

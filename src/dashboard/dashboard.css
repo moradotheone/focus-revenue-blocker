@@ -426,6 +426,110 @@ body {
   transition: width 0.3s ease;
 }
 
+/* Gateways Section */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.gateways-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.gateway-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gateway-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gateway-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gateway-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.gateway-badge.stripe {
+  background: #6366f1;
+  color: white;
+}
+
+.gateway-badge.paypal {
+  background: #0070ba;
+  color: white;
+}
+
+.gateway-status {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.gateway-status.connected {
+  color: var(--green);
+}
+
+.gateway-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.sync-timestamp {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+
+.sandbox-toggle-row {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.hud-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.security-disclaimer {
+  background: rgba(0, 229, 255, 0.02);
+  border-left: 2px solid var(--cyan);
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
 /* Vectors chips */
 .vectors-chips-row {
   display: flex;
@@ -847,8 +951,8 @@ body {
 }
 
 .btn-sm {
-  padding: 4px 8px;
-  font-size: 9.5px;
+  padding: 5px 10px;
+  font-size: 10px;
 }
 
 .btn-del-icon {

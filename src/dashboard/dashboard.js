@@ -1,5 +1,5 @@
 /**
- * FocusRevenue Dashboard Controller (SpaceX / Starlink HUD Edition)
+ * FocusRevenue Dashboard Controller (SpaceX / Starlink HUD Edition + Payments Engine)
  */
 
 let appState = null;
@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupTabNavigation();
   await refreshDashboard();
   setupEventListeners();
+  setupPaymentEventListeners();
 });
 
 async function refreshDashboard() {
@@ -20,6 +21,7 @@ async function refreshDashboard() {
 
   renderTopBar(appProgress);
   renderOverview(appState, appProgress);
+  renderGateways(appState);
   renderTransactions(appState, appProgress);
   renderSites(appState);
   renderEmergencyHistory(appState);
@@ -40,7 +42,7 @@ function setupTabNavigation() {
 
       const tabTitles = {
         'tab-overview': ['CONSOLE // TELEMETRY', 'TELEMETRÍA GENERAL'],
-        'tab-billing': ['CONSOLE // LEDGER', 'FACTURACIÓN & COBROS'],
+        'tab-billing': ['CONSOLE // GATEWAYS & INVOICES', 'PASARELAS & FACTURAS'],
         'tab-sites': ['CONSOLE // SHIELD PROTOCOL', 'ESCUDO DE FOCO'],
         'tab-emergency': ['CONSOLE // OVERRIDE LOG', 'ANULACIÓN DE EMERGENCIA'],
         'tab-monetization': ['CONSOLE // COMMERCIAL MODEL', 'MODELO COMERCIAL & FEE']
@@ -108,6 +110,54 @@ function renderOverview(state, p) {
       chipsContainer.appendChild(chip);
     });
   }
+}
+
+function renderGateways(state) {
+  const providers = state.paymentProviders || {};
+
+  // Stripe
+  const stripe = providers.stripe || {};
+  const stripeToggle = document.getElementById('stripeEnabledToggle');
+  const stripeKeyInput = document.getElementById('stripeApiKeyInput');
+  const stripeBadge = document.getElementById('stripeStatusBadge');
+  const stripeLastSync = document.getElementById('stripeLastSyncText');
+
+  stripeToggle.checked = !!stripe.enabled;
+  stripeKeyInput.value = stripe.apiKey || '';
+  if (stripe.enabled && stripe.apiKey) {
+    stripeBadge.className = 'gateway-status connected';
+    stripeBadge.textContent = 'CONECTADO // ACTIVO';
+  } else {
+    stripeBadge.className = 'gateway-status';
+    stripeBadge.textContent = 'DESCONECTADO';
+  }
+  stripeLastSync.textContent = stripe.lastSync 
+    ? `Sincronizado: ${new Date(stripe.lastSync).toLocaleTimeString('es-ES')}` 
+    : 'Nunca';
+
+  // PayPal
+  const paypal = providers.paypal || {};
+  const paypalToggle = document.getElementById('paypalEnabledToggle');
+  const paypalClientId = document.getElementById('paypalClientIdInput');
+  const paypalSecret = document.getElementById('paypalClientSecretInput');
+  const paypalSandbox = document.getElementById('paypalSandboxToggle');
+  const paypalBadge = document.getElementById('paypalStatusBadge');
+  const paypalLastSync = document.getElementById('paypalLastSyncText');
+
+  paypalToggle.checked = !!paypal.enabled;
+  paypalClientId.value = paypal.clientId || '';
+  paypalSecret.value = paypal.clientSecret || '';
+  paypalSandbox.checked = !!paypal.isSandbox;
+  if (paypal.enabled && paypal.clientId && paypal.clientSecret) {
+    paypalBadge.className = 'gateway-status connected';
+    paypalBadge.textContent = paypal.isSandbox ? 'CONECTADO // SANDBOX' : 'CONECTADO // LIVE';
+  } else {
+    paypalBadge.className = 'gateway-status';
+    paypalBadge.textContent = 'DESCONECTADO';
+  }
+  paypalLastSync.textContent = paypal.lastSync 
+    ? `Sincronizado: ${new Date(paypal.lastSync).toLocaleTimeString('es-ES')}` 
+    : 'Nunca';
 }
 
 function renderTransactions(state, p) {
@@ -268,6 +318,111 @@ function renderMonetization(state, p) {
   }
 }
 
+function setupPaymentEventListeners() {
+  // Stripe inputs
+  const stripeToggle = document.getElementById('stripeEnabledToggle');
+  const stripeKeyInput = document.getElementById('stripeApiKeyInput');
+  const btnTestStripe = document.getElementById('btnTestStripe');
+
+  stripeToggle.addEventListener('change', async (e) => {
+    if (!appState.paymentProviders) appState.paymentProviders = {};
+    if (!appState.paymentProviders.stripe) appState.paymentProviders.stripe = {};
+    appState.paymentProviders.stripe.enabled = e.target.checked;
+    await StorageService.setState(appState);
+    renderGateways(appState);
+  });
+
+  stripeKeyInput.addEventListener('change', async (e) => {
+    if (!appState.paymentProviders) appState.paymentProviders = {};
+    if (!appState.paymentProviders.stripe) appState.paymentProviders.stripe = {};
+    appState.paymentProviders.stripe.apiKey = e.target.value.trim();
+    await StorageService.setState(appState);
+    renderGateways(appState);
+  });
+
+  btnTestStripe.addEventListener('click', async () => {
+    const key = stripeKeyInput.value.trim();
+    if (!key) {
+      alert('Introduce una API Key de Stripe antes de probar.');
+      return;
+    }
+    btnTestStripe.textContent = 'VERIFICANDO...';
+    const res = await PaymentService.testStripeConnection(key);
+    btnTestStripe.textContent = 'PROBAR CONEXIÓN';
+    if (res.success) {
+      alert(`✓ Conexión con Stripe exitosa. Modo: ${res.livemode ? 'PRODUCCIÓN (LIVE)' : 'PRUEBAS (TEST)'}.`);
+      appState.paymentProviders.stripe.apiKey = key;
+      appState.paymentProviders.stripe.enabled = true;
+      await StorageService.setState(appState);
+      renderGateways(appState);
+    } else {
+      alert(`✕ Error al conectar con Stripe: ${res.error}`);
+    }
+  });
+
+  // PayPal inputs
+  const paypalToggle = document.getElementById('paypalEnabledToggle');
+  const paypalClientId = document.getElementById('paypalClientIdInput');
+  const paypalSecret = document.getElementById('paypalClientSecretInput');
+  const paypalSandbox = document.getElementById('paypalSandboxToggle');
+  const btnTestPaypal = document.getElementById('btnTestPaypal');
+
+  const savePayPal = async () => {
+    if (!appState.paymentProviders) appState.paymentProviders = {};
+    if (!appState.paymentProviders.paypal) appState.paymentProviders.paypal = {};
+    appState.paymentProviders.paypal.enabled = paypalToggle.checked;
+    appState.paymentProviders.paypal.clientId = paypalClientId.value.trim();
+    appState.paymentProviders.paypal.clientSecret = paypalSecret.value.trim();
+    appState.paymentProviders.paypal.isSandbox = paypalSandbox.checked;
+    await StorageService.setState(appState);
+    renderGateways(appState);
+  };
+
+  paypalToggle.addEventListener('change', savePayPal);
+  paypalClientId.addEventListener('change', savePayPal);
+  paypalSecret.addEventListener('change', savePayPal);
+  paypalSandbox.addEventListener('change', savePayPal);
+
+  btnTestPaypal.addEventListener('click', async () => {
+    const cid = paypalClientId.value.trim();
+    const sec = paypalSecret.value.trim();
+    const isSb = paypalSandbox.checked;
+    if (!cid || !sec) {
+      alert('Introduce Client ID y Client Secret de PayPal antes de probar.');
+      return;
+    }
+    btnTestPaypal.textContent = 'VERIFICANDO...';
+    const res = await PaymentService.testPayPalConnection(cid, sec, isSb);
+    btnTestPaypal.textContent = 'PROBAR CONEXIÓN';
+    if (res.success) {
+      alert(`✓ Conexión con PayPal exitosa en modo ${res.mode}.`);
+      paypalToggle.checked = true;
+      await savePayPal();
+    } else {
+      alert(`✕ Error al conectar con PayPal: ${res.error}`);
+    }
+  });
+
+  // Master Sync Buttons
+  const runMasterSync = async (btn) => {
+    const originalText = btn.textContent;
+    btn.textContent = 'SINCRONIZANDO...';
+    try {
+      const syncRes = await PaymentService.syncAllAccounts(appState);
+      await StorageService.setState(appState);
+      await refreshDashboard();
+      btn.textContent = originalText;
+      alert(`✓ Sincronización completada:\n${syncRes.log.join('\n')}\nNuevas transacciones agregadas: ${syncRes.addedCount}`);
+    } catch (err) {
+      btn.textContent = originalText;
+      alert(`Error durante la sincronización: ${err.message}`);
+    }
+  };
+
+  document.getElementById('btnSyncAllGateways').addEventListener('click', (e) => runMasterSync(e.target));
+  document.getElementById('btnTopSyncPayments').addEventListener('click', (e) => runMasterSync(e.target));
+}
+
 function setupEventListeners() {
   // Goal setting
   document.getElementById('goalSettingForm').addEventListener('submit', async (e) => {
@@ -387,12 +542,6 @@ function setupEventListeners() {
     if (!appState.monetization) appState.monetization = {};
     appState.monetization.penaltyAmount = Number(e.target.value) || 15;
     await StorageService.setState(appState);
-  });
-
-  // Quick Add Top
-  document.getElementById('btnQuickAddTop').addEventListener('click', () => {
-    document.querySelector('[data-tab="tab-billing"]').click();
-    document.getElementById('txAmount').focus();
   });
 }
 

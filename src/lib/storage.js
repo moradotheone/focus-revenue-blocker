@@ -32,12 +32,11 @@ const DEFAULT_STATE = {
     date: getTodayString()
   },
   transactions: [
-    // Pre-loaded realistic sample transaction for first impression / onboarding
     {
       id: 'tx_init_1',
       timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
       date: getTodayString(),
-      source: 'stripe', // 'stripe' | 'paypal' | 'invoice_issued' | 'manual'
+      source: 'stripe',
       amount: 75.00,
       currency: 'EUR',
       description: 'Stripe: Cobro consultoría estrategia #41',
@@ -53,20 +52,28 @@ const DEFAULT_STATE = {
     durationMinutes: 0,
     history: []
   },
+  paymentProviders: {
+    stripe: {
+      enabled: false,
+      apiKey: '',
+      lastSync: null,
+      lastError: null
+    },
+    paypal: {
+      enabled: false,
+      clientId: '',
+      clientSecret: '',
+      isSandbox: false,
+      lastSync: null,
+      lastError: null
+    },
+    autoSyncMinutes: 15
+  },
   monetization: {
-    feePercentage: 3.0, // 3% fee decided by Jorge as commercial base
+    feePercentage: 3.0,
     penaltyEnabled: false,
     penaltyAmount: 15.00,
     penaltyAccepted: false
-  },
-  pilotTelemetry: {
-    userId: 'usr_' + Math.random().toString(36).substring(2, 10),
-    installedAt: new Date().toISOString(),
-    hasConfiguredGoal: true,
-    totalSessions: 1,
-    lastSessionDate: getTodayString(),
-    activeUserVerified: false, // will evaluate based on Jorge's definition
-    nonClinicalAccepted: true
   }
 };
 
@@ -82,7 +89,7 @@ const StorageService = {
           if (result && result.focusRevenueState) {
             resolve(this.ensureDateRoll(result.focusRevenueState));
           } else {
-            const initial = { ...DEFAULT_STATE };
+            const initial = JSON.parse(JSON.stringify(DEFAULT_STATE));
             this.setState(initial).then(() => resolve(initial));
           }
         });
@@ -104,9 +111,6 @@ const StorageService = {
   },
 
   async setState(newState) {
-    // Check active user definition
-    newState.pilotTelemetry.activeUserVerified = this.evaluateActiveUser(newState);
-
     return new Promise((resolve) => {
       if (this.isExtensionEnv()) {
         chrome.storage.local.set({ focusRevenueState: newState }, () => {
@@ -119,10 +123,15 @@ const StorageService = {
     });
   },
 
-  // If a new day arrives, rollover daily goal date and clean emergency exit
   ensureDateRoll(state) {
     const today = getTodayString();
     let modified = false;
+
+    // Ensure paymentProviders structure exists
+    if (!state.paymentProviders) {
+      state.paymentProviders = JSON.parse(JSON.stringify(DEFAULT_STATE.paymentProviders));
+      modified = true;
+    }
 
     if (state.dailyGoal.date !== today) {
       state.dailyGoal.date = today;
@@ -131,7 +140,6 @@ const StorageService = {
       modified = true;
     }
 
-    // Check emergency exit expiration
     if (state.emergencyExit.isActive && Date.now() >= state.emergencyExit.expiresAt) {
       state.emergencyExit.isActive = false;
       modified = true;
@@ -141,25 +149,6 @@ const StorageService = {
       this.setState(state);
     }
     return state;
-  },
-
-  // Criteria according to Jorge's validation doc:
-  // "activo = usuario único que instala la extensión disponible, configura un objetivo y registra una sesión de uso verificable"
-  evaluateActiveUser(state) {
-    const goalConfigured = state.dailyGoal && state.dailyGoal.targetAmount > 0;
-    const sessionRecorded = state.pilotTelemetry && state.pilotTelemetry.totalSessions >= 1;
-    const hasTransactions = state.transactions && state.transactions.length > 0;
-    return !!(goalConfigured && sessionRecorded && hasTransactions);
-  },
-
-  async recordSession() {
-    const state = await this.getState();
-    const today = getTodayString();
-    if (state.pilotTelemetry.lastSessionDate !== today) {
-      state.pilotTelemetry.totalSessions = (state.pilotTelemetry.totalSessions || 0) + 1;
-      state.pilotTelemetry.lastSessionDate = today;
-      await this.setState(state);
-    }
   }
 };
 

@@ -1,29 +1,28 @@
 /**
  * Background Service Worker (Manifest V3)
- * Orchestrates blocking rules, timers, and storage synchronization.
+ * Orchestrates blocking rules, timers, and automatic payment gateway synchronization.
  */
 
 try {
-  importScripts('../lib/storage.js', '../lib/billing.js', '../lib/rules.js');
+  importScripts('../lib/storage.js', '../lib/billing.js', '../lib/rules.js', '../lib/payments.js');
 } catch (e) {
   console.warn('importScripts failed or not supported in this context:', e);
 }
 
-// Ensure alarm for periodic checks (emergency exit countdown and midnight rollover)
+// Extension installation or update lifecycle
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log('[Background] FocusRevenue Extension installed or updated:', details.reason);
   
-  // Create periodic alarm every 1 minute for timer evaluation
+  // Create periodic alarm every 1 minute for timer evaluation & payment sync
   chrome.alarms.create('focusRevenueMinuteTick', { periodInMinutes: 1 });
+  chrome.alarms.create('focusRevenuePaymentSync', { periodInMinutes: 15 });
 
-  // Initialize or fetch state
   const state = await StorageService.getState();
   const progress = BillingEngine.calculateDailyProgress(state);
   await RuleManager.syncRules(state, progress);
 
-  // If first install, open the dashboard to guide the user through onboarding
   if (details.reason === 'install') {
-    chrome.tabs.create({ url: 'src/dashboard/dashboard.html?onboarding=1' });
+    chrome.tabs.create({ url: 'src/dashboard/dashboard.html?welcome=1' });
   }
 });
 
@@ -33,12 +32,34 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     const state = await StorageService.getState();
     const progress = BillingEngine.calculateDailyProgress(state);
     
-    // If emergency exit just expired, refresh rules
+    // Check emergency exit expiration
     if (state.emergencyExit && state.emergencyExit.isActive && Date.now() >= state.emergencyExit.expiresAt) {
       state.emergencyExit.isActive = false;
       await StorageService.setState(state);
       await RuleManager.syncRules(state, progress);
       console.log('[Background] Emergency bypass expired. Blocks restored.');
+    }
+  }
+
+  if (alarm.name === 'focusRevenuePaymentSync') {
+    try {
+      const state = await StorageService.getState();
+      const providers = state.paymentProviders || {};
+      const isAnyEnabled = (providers.stripe && providers.stripe.enabled) || 
+                           (providers.paypal && providers.paypal.enabled);
+
+      if (isAnyEnabled && typeof PaymentService !== 'undefined') {
+        console.log('[Background] Running scheduled payment gateway synchronization...');
+        const syncRes = await PaymentService.syncAllAccounts(state);
+        if (syncRes.addedCount > 0) {
+          await StorageService.setState(state);
+          const progress = BillingEngine.calculateDailyProgress(state);
+          await RuleManager.syncRules(state, progress);
+          console.log(`[Background] Payment sync added ${syncRes.addedCount} new transactions. Rules updated.`);
+        }
+      }
+    } catch (err) {
+      console.warn('[Background] Auto payment sync error:', err);
     }
   }
 });
@@ -58,11 +79,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         await RuleManager.syncRules(state, progress);
         sendResponse({ success: true, progress });
       } 
+      else if (message.action === 'SYNC_PAYMENTS_NOW') {
+        const state = await StorageService.getState();
+        if (typeof PaymentService !== 'undefined') {
+          const syncRes = await PaymentService.syncAllAccounts(state);
+          await StorageService.setState(state);
+          const progress = BillingEngine.calculateDailyProgress(state);
+          await RuleManager.syncRules(state, progress);
+          sendResponse({ success: true, syncRes, progress });
+        } else {
+          sendResponse({ success: false, error: 'PaymentService not available' });
+        }
+      }
       else if (message.action === 'LOG_TRANSACTION') {
         const state = await StorageService.getState();
         const tx = message.transaction;
         
-        // Detect duplicates
         tx.potentialDuplicate = BillingEngine.detectDuplicates(tx, state.transactions);
         state.transactions.unshift(tx);
         
@@ -110,6 +142,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   })();
 
-  // Keep channel open for async response
   return true;
 });
