@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusRevenue</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <img src="../../icons/icon32.png" alt="Logo" class="brand-icon">
+        <div>
+          <h1 class="brand-title">FocusRevenue</h1>
+          <span class="brand-subtitle" id="currentDateLabel">Hoy</span>
+        </div>
+      </div>
+      <div id="statusBadge" class="status-badge badge-locked">
+        <span class="badge-dot"></span>
+        <span id="statusText">Bloqueo activo</span>
+      </div>
+    </header>
+
+    <!-- Progress Card -->
+    <section class="progress-card">
+      <div class="progress-main">
+        <div class="revenue-numbers">
+          <span class="current-revenue" id="currentRevenue">0,00 €</span>
+          <span class="revenue-divider">/</span>
+          <span class="target-revenue" id="targetRevenue">200,00 €</span>
+        </div>
+        <div class="percent-tag" id="percentBadge">0%</div>
+      </div>
+
+      <!-- Visual progress bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+      </div>
+
+      <div class="progress-subtext" id="progressSubtext">
+        Faltan <strong>200,00 €</strong> para desbloquear distracciones hoy.
+      </div>
+
+      <!-- Breakdown pills -->
+      <div class="breakdown-row">
+        <div class="breakdown-pill" title="Cobros confirmados vía Stripe / PayPal">
+          <span class="pill-label">Confirmado:</span>
+          <span class="pill-val" id="confirmedVal">0,00 €</span>
+        </div>
+        <div class="breakdown-pill" title="Facturas emitidas pendientes de cobro">
+          <span class="pill-label">Emitido:</span>
+          <span class="pill-val" id="issuedVal">0,00 €</span>
+        </div>
+      </div>
+      
+      <div class="fee-notice" id="feeNotice">
+        Fee comercial estimado (3%): <strong id="feeVal">0,00 €</strong>
+      </div>
+    </section>
+
+    <!-- Emergency Active Banner (conditionally displayed) -->
+    <div id="emergencyBanner" class="emergency-active-banner hidden">
+      <div class="emergency-icon">⏱️</div>
+      <div class="emergency-details">
+        <div class="emergency-title">Salida de Emergencia Activa</div>
+        <div class="emergency-sub" id="emergencyCountdown">Quedan -- min</div>
+      </div>
+      <button id="btnCancelEmergency" class="btn-text-danger" title="Restaurar bloqueo ahora">Cerrar</button>
+    </div>
+
+    <!-- Quick Action: Fast Add Income -->
+    <section class="actions-section">
+      <div class="section-title">Registrar Facturación Rápida</div>
+      <div class="quick-buttons">
+        <button class="quick-btn" data-type="stripe" data-amount="50">+50€ Stripe</button>
+        <button class="quick-btn" data-type="paypal" data-amount="30">+30€ PayPal</button>
+        <button class="quick-btn" data-type="invoice_issued" data-amount="100">+100€ Factura</button>
+      </div>
+
+      <form id="customIncomeForm" class="custom-income-form">
+        <div class="input-group">
+          <input type="number" id="inputAmount" placeholder="Monto (€)" min="1" step="any" required>
+          <select id="inputType">
+            <option value="stripe">Stripe</option>
+            <option value="paypal">PayPal</option>
+            <option value="invoice_issued">Factura</option>
+          </select>
+          <button type="submit" class="btn-primary">Añadir</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Footer buttons -->
+    <footer class="popup-footer">
+      <button id="btnEmergencyTrigger" class="btn-secondary" title="Salida segura temporal de 10 min">
+        🛡️ Salida Segura (10m)
+      </button>
+      <button id="btnOpenDashboard" class="btn-secondary">
+        ⚙️ Panel y Ajustes
+      </button>
+    </footer>
+  </div>
+
+  <!-- Modal Salida de Emergencia -->
+  <div id="emergencyModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 class="modal-title">🛡️ Salida de Emergencia</h3>
+      <p class="modal-desc">
+        Desbloquea temporalmente los sitios para resolver una urgencia o atención a clientes, sin coerción.
+      </p>
+      
+      <div class="form-group">
+        <label for="emergencyDuration">Duración:</label>
+        <select id="emergencyDuration">
+          <option value="5">5 minutos (Rápido)</option>
+          <option value="10" selected>10 minutos (Recomendado)</option>
+          <option value="20">20 minutos (Gestión urgente)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="emergencyReason">Motivo (para trazabilidad):</label>
+        <input type="text" id="emergencyReason" placeholder="Ej: Responder mensaje de cliente urgente" required>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnCloseModal" class="btn-cancel">Cancelar</button>
+        <button id="btnConfirmEmergency" class="btn-confirm-emergency">Activar Salida Segura</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/billing.js"></script>
+  <script src="../lib/rules.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

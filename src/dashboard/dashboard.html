@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control — FocusRevenue</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../../icons/icon48.png" alt="FocusRevenue" class="brand-logo">
+        <div class="brand-info">
+          <span class="brand-title">FocusRevenue</span>
+          <span class="brand-version">v0.1.0 MVP</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tab-overview">
+          <span class="nav-icon">📊</span> Resumen Diario
+        </button>
+        <button class="nav-item" data-tab="tab-billing">
+          <span class="nav-icon">💳</span> Facturación & Pagos
+        </button>
+        <button class="nav-item" data-tab="tab-sites">
+          <span class="nav-icon">🛡️</span> Sitios Bloqueados
+        </button>
+        <button class="nav-item" data-tab="tab-emergency">
+          <span class="nav-icon">⏱️</span> Salida Segura
+        </button>
+        <button class="nav-item" data-tab="tab-monetization">
+          <span class="nav-icon">💼</span> Monetización & Fee
+        </button>
+        <button class="nav-item" data-tab="tab-pilot">
+          <span class="nav-icon">🎯</span> Validación del Piloto
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="activation-pill" id="sidebarActivationPill">
+          <span class="pill-dot"></span>
+          <span id="sidebarActivationText">Piloto: Verificando...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div>
+          <h1 class="page-title" id="pageTitle">Resumen Diario</h1>
+          <p class="page-subtitle" id="pageSubtitle">Control de foco vinculado a tu meta de facturación.</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="status-indicator" id="topStatusIndicator">
+            <span class="dot"></span>
+            <span id="topStatusText">Bloqueo activo</span>
+          </div>
+          <button class="btn-primary" id="btnQuickAddTop">+ Registrar Cobro</button>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section class="tab-pane active" id="tab-overview">
+        <!-- Goal Config Card -->
+        <div class="card goal-config-card">
+          <div class="goal-config-header">
+            <div>
+              <h3>Tu Meta Diaria de Facturación</h3>
+              <p class="text-muted">Define el monto económico que necesitas alcanzar hoy para desbloquear el acceso a sitios de distracción.</p>
+            </div>
+            <form id="goalSettingForm" class="goal-form">
+              <div class="goal-input-wrap">
+                <input type="number" id="targetAmountInput" min="1" step="any" value="200" required>
+                <select id="currencySelect">
+                  <option value="EUR">EUR (€)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+                <button type="submit" class="btn-secondary">Actualizar Meta</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card highlight">
+            <span class="metric-title">Facturación Total Hoy</span>
+            <span class="metric-value" id="cardTotalRevenue">0,00 €</span>
+            <span class="metric-sub" id="cardProgressPercent">0% de tu objetivo</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Pagos Confirmados</span>
+            <span class="metric-value" id="cardConfirmedRevenue">0,00 €</span>
+            <span class="metric-sub">Stripe y PayPal</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Facturas Emitidas</span>
+            <span class="metric-value" id="cardIssuedRevenue">0,00 €</span>
+            <span class="metric-sub">Pendientes de cobro</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Fee Comercial (3%)</span>
+            <span class="metric-value" id="cardFeeEstimated">0,00 €</span>
+            <span class="metric-sub">Base comercial estimada</span>
+          </div>
+        </div>
+
+        <!-- Progress Visual Bar -->
+        <div class="card">
+          <div class="progress-bar-header">
+            <span>Progreso diario hacia el desbloqueo</span>
+            <span id="overviewRemainingText">Faltan 200,00 €</span>
+          </div>
+          <div class="overview-progress-bar">
+            <div class="overview-progress-fill" id="overviewProgressFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Active Sites Preview -->
+        <div class="card">
+          <h3>Sitios con bloqueo activo actualmente</h3>
+          <p class="text-muted">Estos sitios se redireccionarán a la pantalla de enfoque hasta alcanzar la meta de facturación.</p>
+          <div class="domains-chips-list" id="overviewDomainsChips">
+            <!-- Chips rendered dynamically -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: BILLING & TRANSACTIONS -->
+      <section class="tab-pane" id="tab-billing">
+        <!-- Webhook Simulator Bar -->
+        <div class="card simulator-card">
+          <div class="simulator-header">
+            <div>
+              <h3>Simulador de Pagos & Webhooks</h3>
+              <p class="text-muted">Herramienta de prueba rápida para verificar el desbloqueo sin necesidad de conectar credenciales bancarias reales en este v0.</p>
+            </div>
+            <div class="simulator-buttons">
+              <button class="btn-sim stripe" id="btnSimStripe">+ €85 Stripe</button>
+              <button class="btn-sim paypal" id="btnSimPaypal">+ €50 PayPal</button>
+              <button class="btn-sim invoice" id="btnSimInvoice">+ €150 Factura</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duplicate Warning Banner -->
+        <div id="duplicateAlertBanner" class="alert-banner hidden">
+          <span class="alert-icon">⚠️</span>
+          <div class="alert-body">
+            <strong>Posible riesgo de doble conteo detectado</strong>
+            <p>Se identificaron cobros confirmados y facturas emitidas por el mismo monto en la misma fecha. Revisa si corresponden al mismo ingreso para conciliar.</p>
+          </div>
+        </div>
+
+        <!-- Add Manual Transaction Card -->
+        <div class="card">
+          <h3>Registrar Transacción Manual</h3>
+          <form id="addTxForm" class="add-tx-grid">
+            <div class="form-field">
+              <label>Tipo de ingreso</label>
+              <select id="txType" required>
+                <option value="stripe">Stripe (Pago confirmado)</option>
+                <option value="paypal">PayPal (Pago confirmado)</option>
+                <option value="invoice_issued">Factura Emitida (Pendiente)</option>
+                <option value="manual">Otro cobro confirmado</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Monto</label>
+              <input type="number" id="txAmount" placeholder="Ej: 120.00" min="0.5" step="any" required>
+            </div>
+            <div class="form-field full-width">
+              <label>Descripción / Concepto</label>
+              <input type="text" id="txDescription" placeholder="Ej: Servicio de consultoría mensual cliente B" required>
+            </div>
+            <div class="form-actions full-width">
+              <button type="submit" class="btn-primary">Registrar en el día de hoy</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+          <div class="table-header">
+            <h3>Historial de Transacciones Registradas</h3>
+            <button class="btn-secondary btn-sm" id="btnClearAllTxs">Limpiar historial</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Origen</th>
+                  <th>Concepto</th>
+                  <th>Monto</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody">
+                <!-- Rows injected dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: BLOCKED SITES -->
+      <section class="tab-pane" id="tab-sites">
+        <div class="card">
+          <h3>Gestión de Sitios Bloqueados</h3>
+          <p class="text-muted">Activa o desactiva las plataformas en las que sueles distraerte. Solo se bloquearán si tu meta económica del día no se ha alcanzado.</p>
+
+          <div class="sites-presets-grid" id="sitesPresetsList">
+            <!-- Preset switches rendered dynamically -->
+          </div>
+
+          <div class="add-custom-domain-box">
+            <h4>Añadir dominio personalizado</h4>
+            <form id="addCustomDomainForm" class="custom-domain-form">
+              <input type="text" id="customDomainInput" placeholder="ej: periodicodetendencias.com o meneame.net" required>
+              <button type="submit" class="btn-primary">Añadir Dominio</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: EMERGENCY EXIT -->
+      <section class="tab-pane" id="tab-emergency">
+        <div class="card">
+          <h3>Salida Segura & Emergencias (Control sin coerción)</h3>
+          <p class="text-muted">
+            De acuerdo con las directrices de seguridad del proyecto, el bloqueo digital debe contar con una salida de emergencia accesible en todo momento para evitar bloquear herramientas laborales esenciales o comunicación urgente con clientes.
+          </p>
+
+          <div class="emergency-trigger-box">
+            <div class="trigger-info">
+              <h4>Activar Salida Segura Ahora</h4>
+              <p>Desbloquea temporalmente todos los sitios indicando un motivo para trazabilidad.</p>
+            </div>
+            <div class="trigger-controls">
+              <select id="tabEmergencyMinutes">
+                <option value="5">5 minutos</option>
+                <option value="10" selected>10 minutos</option>
+                <option value="20">20 minutos</option>
+              </select>
+              <input type="text" id="tabEmergencyReason" placeholder="Motivo (ej: revisar mensaje urgente en LinkedIn)" required>
+              <button class="btn-warning" id="btnTabTriggerEmergency">Activar Salida Temporal</button>
+            </div>
+          </div>
+
+          <h4>Historial de Salidas Seguras Utilizadas</h4>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Duración</th>
+                  <th>Motivo Registrado</th>
+                </tr>
+              </thead>
+              <tbody id="emergencyTableBody">
+                <!-- History rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: MONETIZATION -->
+      <section class="tab-pane" id="tab-monetization">
+        <div class="card">
+          <h3>Modelo de Monetización — Base Comercial de Jorge</h3>
+          <p class="text-muted">
+            Según las decisiones vigentes de la ficha de validación de la Idea A:
+          </p>
+          <div class="monetization-info-box">
+            <div class="info-row">
+              <strong>Base comercial establecida:</strong>
+              <span>Fee del 3% sobre la facturación diaria registrada.</span>
+            </div>
+            <div class="info-row">
+              <strong>Finalidad en MVP v0:</strong>
+              <span>Transparencia informativa. No se realizan cargos reales en tarjeta ni movimientos monetarios automáticos en esta versión piloto.</span>
+            </div>
+          </div>
+
+          <div class="monetization-calculator">
+            <h4>Simulador de Fee Comercial</h4>
+            <div class="calc-row">
+              <span>Facturación total acumulada:</span>
+              <strong id="monetizationTotalRev">0,00 €</strong>
+            </div>
+            <div class="calc-row">
+              <span>Fee del 3% correspondiente:</span>
+              <strong class="highlight-val" id="monetizationFeeRev">0,00 €</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Hipótesis de Penalización Opcional (H-A4)</h3>
+          <p class="text-muted">
+            Exploración de penalización voluntaria tipo suscripción por incumplimiento de meta económica. Requiere consentimiento explícito.
+          </p>
+
+          <div class="penalty-toggle-box">
+            <label class="switch-container">
+              <input type="checkbox" id="penaltyToggle">
+              <span class="switch-slider"></span>
+              <span class="switch-label">Habilitar experimento de penalización voluntaria</span>
+            </label>
+            <div id="penaltyDetails" class="penalty-details hidden">
+              <p class="disclaimer">
+                <strong>Aviso de Consentimiento:</strong> La penalización es puramente optativa, no coercitiva, y en este prototipo no realiza cobros en cuenta bancaria.
+              </p>
+              <div class="form-field">
+                <label>Penalización simulada por día incumplido (€):</label>
+                <input type="number" id="penaltyAmountInput" value="15" min="1">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: PILOT VALIDATION -->
+      <section class="tab-pane" id="tab-pilot">
+        <div class="card">
+          <h3>Métricas de Validación del Piloto — Objetivo de Jorge</h3>
+          <div class="pilot-summary-box">
+            <div class="pilot-goal-item">
+              <span class="tag">Objetivo del Encargo</span>
+              <strong>10 usuarios activos en menos de 7 días</strong>
+              <p class="text-muted">Con presupuesto mínimo indispensable y reclutamiento orgánico.</p>
+            </div>
+            <div class="pilot-goal-item">
+              <span class="tag">Definición de Usuario Activo</span>
+              <strong>Instala + Configura Meta + Registra Sesión Verificable</strong>
+              <p class="text-muted">Los registros o interesados no cuentan; solo sesiones de uso real.</p>
+            </div>
+          </div>
+
+          <div class="pilot-checklist-card">
+            <h4>Estado de Validación de esta Instalación</h4>
+            <ul class="pilot-checklist" id="pilotChecklist">
+              <!-- Checklist items rendered dynamically -->
+            </ul>
+
+            <div class="pilot-actions">
+              <button class="btn-primary" id="btnExportPilotData">📥 Exportar Evidencia de Uso (JSON)</button>
+              <button class="btn-secondary" id="btnResetPilotData">Reiniciar Datos de Prueba</button>
+            </div>
+          </div>
+
+          <div class="card non-clinical-box">
+            <h4>Garantía de Privacidad y Enfoque No-Clínico</h4>
+            <p>
+              En estricto cumplimiento de la Ficha de Hipótesis:
+            </p>
+            <ul>
+              <li>El ángulo de TDAH es exclusivamente un enfoque de comunicación sobre dispersión de atención en emprendedores, nunca un diagnóstico clínico ni terapia.</li>
+              <li>No se recogen ni almacenan datos médicos o de salud del usuario.</li>
+              <li>No se almacenan datos bancarios, números de tarjeta ni datos personales de los clientes del usuario.</li>
+              <li>Toda la información se procesa localmente en el navegador.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/billing.js"></script>
+  <script src="../lib/rules.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

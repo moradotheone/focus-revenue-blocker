@@ -1,0 +1,263 @@
+/* Preview Showcase Styles */
+:root {
+  --primary: #4f46e5;
+  --bg-dark: #0f172a;
+  --bg-light: #f1f5f9;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-light);
+  overflow: hidden;
+}
+
+.preview-header {
+  background-color: var(--bg-dark);
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.preview-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.preview-title {
+  font-weight: 700;
+  font-size: 15px;
+  display: block;
+}
+
+.preview-badge {
+  font-size: 11px;
+  color: #38bdf8;
+  display: block;
+}
+
+.view-switcher {
+  display: flex;
+  gap: 8px;
+}
+
+.switch-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.switch-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.switch-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Stage */
+.preview-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-frame {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.stage-frame.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#frame-dashboard iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Popup Mockup */
+.popup-phone-mockup {
+  width: 380px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+}
+
+.browser-tab-bar {
+  background: #e2e8f0;
+  padding: 8px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.popup-iframe {
+  width: 380px;
+  height: 520px;
+  border: none;
+}
+
+/* Blocked Page Mockup */
+.browser-window-mockup {
+  width: 90%;
+  max-width: 900px;
+  height: 85%;
+  background: #0f172a;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #334155;
+}
+
+.mockup-header {
+  background: #1e293b;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #334155;
+}
+
+.mockup-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.mockup-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.mockup-dots span:nth-child(1) { background: #ef4444; }
+.mockup-dots span:nth-child(2) { background: #f59e0b; }
+.mockup-dots span:nth-child(3) { background: #10b981; }
+
+.mockup-address-bar {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 12px;
+  flex: 1;
+}
+
+.blocked-iframe {
+  flex: 1;
+  border: none;
+}
+
+/* Guide Container */
+.guide-container {
+  max-width: 800px;
+  width: 90%;
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.guide-container h2 {
+  font-size: 20px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.guide-lead {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 24px;
+}
+
+.steps-list {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.steps-list li {
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.steps-list code {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.info-card {
+  background: #f8fafc;
+  border-left: 4px solid var(--primary);
+  padding: 16px;
+  border-radius: 0 8px 8px 0;
+}
+
+.info-card h4 {
+  font-size: 13.5px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.info-card ul {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}

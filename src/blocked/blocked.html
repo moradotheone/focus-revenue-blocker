@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sitio Pausado — FocusRevenue</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <div class="block-card">
+    <!-- Card Header -->
+    <div class="brand-badge">
+      <img src="../../icons/icon48.png" alt="FocusRevenue Logo" class="brand-logo">
+      <span>FocusRevenue</span>
+    </div>
+
+    <div class="site-alert">
+      <span class="site-tag" id="blockedDomainTag">Sitio web</span>
+      <h1 class="main-heading">Pausado por tu meta diaria</h1>
+    </div>
+
+    <!-- Progress Visualization -->
+    <div class="progress-box">
+      <div class="progress-header">
+        <span class="metric-label">Progreso de facturación hoy</span>
+        <span class="metric-percent" id="progressPercentText">0%</span>
+      </div>
+      <div class="meter-bar">
+        <div class="meter-fill" id="meterFill" style="width: 0%;"></div>
+      </div>
+      <div class="revenue-summary">
+        <span class="rev-current" id="currentRevText">0,00 €</span>
+        <span class="rev-separator">/</span>
+        <span class="rev-target" id="targetRevText">200,00 €</span>
+      </div>
+      <div class="remaining-callout" id="remainingCallout">
+        Te faltan <strong>0,00 €</strong> para desbloquear las distracciones hoy.
+      </div>
+    </div>
+
+    <!-- Motivation Quote -->
+    <div class="quote-box">
+      <span class="quote-icon">💡</span>
+      <p class="quote-text" id="quoteText">
+        «Factura primero, scrollea después. Tu atención es el recurso más caro de tu negocio.»
+      </p>
+    </div>
+
+    <!-- Quick Log Section -->
+    <div class="quick-log-card" id="quickLogCard">
+      <div class="card-subtitle">¿Acabas de cerrar una venta o emitir factura?</div>
+      <div class="quick-pills">
+        <button class="pill-btn" data-type="stripe" data-amount="50">+50€ Stripe</button>
+        <button class="pill-btn" data-type="paypal" data-amount="30">+30€ PayPal</button>
+        <button class="pill-btn" data-type="invoice_issued" data-amount="100">+100€ Factura</button>
+      </div>
+
+      <form id="inlineIncomeForm" class="inline-form">
+        <input type="number" id="inlineAmount" placeholder="Monto (€)" min="1" step="any" required>
+        <select id="inlineType">
+          <option value="stripe">Stripe</option>
+          <option value="paypal">PayPal</option>
+          <option value="invoice_issued">Factura</option>
+        </select>
+        <button type="submit" class="btn-submit-inline">Registrar</button>
+      </form>
+    </div>
+
+    <!-- Unlocked Success Box (shown if goal was reached) -->
+    <div class="success-box hidden" id="successBox">
+      <div class="success-icon">🎉</div>
+      <h2>¡Meta diaria alcanzada!</h2>
+      <p>Has cumplido tu objetivo de facturación de hoy. Disfruta de tu tiempo libre con tranquilidad.</p>
+      <button id="btnContinueToSite" class="btn-success-continue">Continuar al sitio</button>
+    </div>
+
+    <!-- Safe Emergency Exit & Navigation -->
+    <div class="footer-actions">
+      <button id="btnEmergencyTrigger" class="btn-emergency" title="Permite acceso temporal de 10 min por urgencias sin penalización">
+        🛡️ Salida de Emergencia (10 min)
+      </button>
+      <a href="../dashboard/dashboard.html" class="link-dashboard">
+        ⚙️ Panel y Ajustes
+      </a>
+    </div>
+
+    <div class="compliance-note">
+      FocusRevenue: Sin recolección de datos de salud ni datos bancarios de clientes. Herramienta de productividad orientada al compromiso comercial.
+    </div>
+  </div>
+
+  <!-- Emergency Modal -->
+  <div id="emergencyModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>🛡️ Salida de Emergencia Temporal</h3>
+      <p>
+        Si necesitas acceder a este sitio por motivos profesionales o urgentes, puedes desbloquearlo temporalmente.
+      </p>
+      
+      <div class="form-group">
+        <label for="emergencyDuration">Minutos de desbloqueo:</label>
+        <select id="emergencyDuration">
+          <option value="5">5 minutos</option>
+          <option value="10" selected>10 minutos (Recomendado)</option>
+          <option value="20">20 minutos</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="emergencyReason">Motivo de la urgencia:</label>
+        <input type="text" id="emergencyReason" placeholder="Ej: Responder mensaje de cliente urgente" required>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="btnCancelModal" class="btn-secondary">Cancelar</button>
+        <button id="btnConfirmEmergency" class="btn-warning">Activar y Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../lib/storage.js"></script>
+  <script src="../lib/billing.js"></script>
+  <script src="../lib/rules.js"></script>
+  <script src="blocked.js"></script>
+</body>
+</html>

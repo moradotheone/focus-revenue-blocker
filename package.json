@@ -1,0 +1,19 @@
+{
+  "name": "focus-revenue-blocker-mvp",
+  "version": "0.1.0",
+  "description": "Bloqueador de distracciones por meta diaria de facturación para emprendedores (MVP v0)",
+  "scripts": {
+    "preview": "python3 -m http.server 3000 --directory .",
+    "generate-icons": "python3 icons/generate_icons.py",
+    "package": "zip -r ../focus-revenue-mvp-v0.zip . -x '*.git*' 'pilot/*' 'node_modules/*'"
+  },
+  "keywords": [
+    "chrome-extension",
+    "productivity",
+    "focus",
+    "revenue",
+    "distraction-blocker"
+  ],
+  "author": "Jorge & Team",
+  "license": "MIT"
+}
