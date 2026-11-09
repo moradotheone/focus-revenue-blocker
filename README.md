@@ -4,124 +4,113 @@
 [![Manifest](https://img.shields.io/badge/manifest-v3-00f59b.svg)](https://developer.chrome.com/docs/extensions/mv3/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Design](https://img.shields.io/badge/design-SpaceX%20%2F%20Starlink%20HUD-ffaa00.svg)](https://github.com/moradotheone/focus-revenue-blocker)
+[![Docs](https://img.shields.io/badge/docs-PRD%20%26%20Handover-purple.svg)](docs/PRD_AND_HANDOVER.md)
 
-Extensión de navegador bajo estándar **Chromium Manifest V3** con diseño minimalista inspirado en la telemetría de **SpaceX / Starlink**. Vincula el acceso a redes sociales y entretenimiento digital a tu **meta económica diaria de facturación**.
+> **"El cortafuegos que bloquea tus distracciones hasta que entre dinero en tu cuenta."**  
+> FocusRevenue es una extensión de Google Chrome (Manifest V3) inspirada en la telemetría y diseño de **SpaceX / Starlink** que vincula el desbloqueo de redes sociales y entretenimiento a tu **meta económica diaria de facturación**.
+
+---
+
+## 📌 Documentación de Producto y Handover
+
+Para especificaciones detalladas, arquitectura, copys de landing y guía técnica completa:
+* 📄 **[PRD & Handover Técnico Completo](docs/PRD_AND_HANDOVER.md)**: Requerimientos funcionales, arquitectura MV3, esquema de datos, seguridad zero-PII y roadmap de sprints.
+* 🚀 **[Landing Page Copy & Product Pitch](docs/LANDING_COPY.md)**: Textos de alta conversión listos para landing page, tienda web, anuncios y lanzamientos en español e inglés.
+
+---
+
+## 🎯 ¿Por Qué FocusRevenue?
+
+Los bloqueadores de pantalla tradicionales (Pomodoro, Freedom, StayFocusd) fallan porque la fuerza de voluntad se agota a las 11:00 AM y el cerebro sabe que puede apagarlos sin consecuencias. 
+
+FocusRevenue cambia las reglas:
+1. **Bloqueo a nivel de red (`declarativeNetRequest`):** A las 08:00 AM, tus redes y webs de ocio quedan selladas a nivel de conexión.
+2. **Auditoría automática de ingresos:** Conexión nativa de solo lectura con **Stripe** y **PayPal**.
+3. **Desbloqueo reactivo inmediato:** En cuanto un cliente te paga o facturas tu objetivo diario (ej. 200 €), el escudo se baja solo. Tu dopamina queda alineada con la supervivencia y crecimiento de tu negocio.
+4. **Salida ética de emergencia:** Si necesitas consultar un vídeo de soporte o resolver una urgencia, dispones de un bypass temporal con registro de motivo sin coerción.
 
 ---
 
 ## ⚡ GUÍA DE AUTOINSTALACIÓN RÁPIDA (Chrome, Brave, Edge)
-> *Nota: Mientras se completa el proceso de validación y publicación en Chrome Web Store (Google Marketplace), puedes autoinstalar y utilizar FocusRevenue de forma instantánea mediante estos sencillos pasos:*
+> *Mientras se completa la publicación oficial en el Chrome Web Store, puedes instalar y ejecutar FocusRevenue en menos de 1 minuto:*
 
 ### Paso 1: Obtener el Código
-Elige una de las dos opciones:
-
-- **Opción A (Recomendada - Sin terminal):**  
-  Descarga el archivo ZIP oficial del proyecto y descomprímelo en tu equipo:  
-  👉 **[Descargar focus-revenue-mvp-v0.zip](https://github.com/moradotheone/focus-revenue-blocker/archive/refs/heads/main.zip)**
-
-- **Opción B (Vía Git):**  
+- **Opción A (Recomendada - ZIP):**  
+  Descarga el archivo ZIP oficial: **[Descargar focus-revenue-mvp-v0.zip](https://github.com/moradotheone/focus-revenue-blocker/archive/refs/heads/main.zip)** y descomprímelo.
+- **Opción B (Git):**  
   ```bash
   git clone https://github.com/moradotheone/focus-revenue-blocker.git
   ```
 
----
-
-### Paso 2: Cargar la Extensión en tu Navegador (30 Segundos)
-
-1. Abre tu navegador basado en Chromium y dirígete a la gestión de extensiones:
+### Paso 2: Cargar la Extensión en el Navegador
+1. Abre tu navegador y accede a:
    - **Google Chrome:** `chrome://extensions`
    - **Brave Browser:** `brave://extensions`
    - **Microsoft Edge:** `edge://extensions`
-   - **Opera:** `opera://extensions`
-
-2. Activa el interruptor **«Modo de desarrollador»** (situado en la esquina superior derecha).
-
-3. Haz clic en el botón **«Cargar descomprimida»** (*Load unpacked*).
-
-4. Selecciona la carpeta donde descargaste el proyecto (por ejemplo `focus-revenue-blocker`).
-
-5. **¡Listo!** Verás la extensión activa. Te recomendamos **fijar el icono** (icono de chincheta/pin) en la barra superior para tener la telemetría de ingresos siempre a la vista.
+2. Activa la casilla **«Modo de desarrollador»** (esquina superior derecha).
+3. Haz clic en **«Cargar descomprimida»** (*Load unpacked*).
+4. Selecciona la carpeta del proyecto (`focus-revenue-blocker`).
+5. **¡Listo!** Te recomendamos anclar el icono en la barra superior para ver el HUD en todo momento.
 
 ---
 
-## 💳 Conexión Oficial con Stripe y PayPal
-
-FocusRevenue incluye una capa de integración directa con las APIs oficiales de **Stripe** y **PayPal**:
+## 💳 Conexión Oficial con Pasarelas (Stripe & PayPal)
 
 ```mermaid
 flowchart LR
-    A["Stripe API\n(Restricted Key)"] -->|Polling seguro| C["FocusRevenue\n(Local MV3 Extension)"]
-    B["PayPal REST API\n(OAuth2 Token)"] -->|Polling seguro| C
-    D["Facturas Emitidas\n(Registro Manual)"] --> C
-    C -->|Meta Alcanzada| E["🔓 Desbloqueo Automático\nde Redes Sociales"]
-    C -->|Meta Pendiente| F["🛑 Pantalla de Enfoque\n(HUD Telemetría)"]
+    A["Stripe API\n(Restricted Key)"] -->|Polling seguro 15 min| C["FocusRevenue\n(Local MV3 Extension)"]
+    B["PayPal REST API\n(OAuth2 Client Credentials)"] -->|Polling seguro 15 min| C
+    D["Facturas & Bizum\n(Registro Manual)"] --> C
+    C -->|Meta Diaria Alcanzada| E["🔓 Desbloqueo Automático\nde Redes Sociales"]
+    C -->|Meta Pendiente| F["🛑 Escudo HUD Activo\n(Pantalla Táctica Intersticial)"]
 ```
 
-### 1. Stripe (Cobros con Tarjeta)
-- Ve a tu panel de Stripe > *Developers* > *API Keys* > *Create restricted key*.
-- Asígnale permisos de solo lectura (**Read**) sobre:
-  - `Charges` (`read`)
-  - `Invoices` (`read`)
-- Pega tu clave (`rk_live_...` o `rk_test_...`) en la pestaña **02 PASARELAS & FACTURAS** de FocusRevenue y pulsa **Probar Conexión**.
-
-### 2. PayPal (Transferencias y Pagos Recibidos)
-- Ve a [developer.paypal.com](https://developer.paypal.com) > *Apps & Credentials*.
-- Crea una aplicación y copia el **Client ID** y **Client Secret**.
-- Soporta tanto entorno **Live (Producción)** como **Sandbox (Pruebas)**.
-
-### 3. Sincronización Automática en Segundo Plano
-- El service worker consulta automáticamente cada 15 minutos (configurable) tus cobros del día.
-- En cuanto entra un nuevo pago en Stripe o PayPal, el medidor de ingresos se actualiza automáticamente y, si se alcanza el objetivo diario, **las barreras de distracción se desactivan solas**.
+* **Stripe:** Introduce tu *Restricted Key* de solo lectura (`rk_live_...` con permisos `charges:read` e `invoices:read`).
+* **PayPal:** Introduce tus credenciales OAuth2 (*Client ID* y *Secret*) en modo Live o Sandbox.
+* **Sincronización Periódica:** Cada 15 minutos, el service worker recalcula tus ingresos y desactiva el escudo automáticamente al alcanzar la meta.
 
 ---
 
-## 🔒 Privacidad Estricta y Seguridad de Datos
+## 🔒 Privacidad y Seguridad (Zero-PII)
 
-- **Cero intermediarios:** Todas las llamadas a las APIs de Stripe y PayPal se ejecutan directamente desde tu navegador hacia `api.stripe.com` y `api.paypal.com`.
-- **Cero retención de PII:** La extensión jamás lee, almacena ni transmite números de tarjeta, cuentas bancarias, correos o datos personales de tus clientes compradores.
-- **Almacenamiento Local Aislado:** Todas las configuraciones y credenciales se guardan localmente en `chrome.storage.local`.
-- **Salida de Emergencia Sin Coerción:** Incorpora un protocolo de anulación de emergencia (5 a 20 min) para que nunca te quedes bloqueado ante una urgencia real o comunicación de soporte.
+* **Cero intermediarios:** Todas las peticiones van directamente desde tu navegador a `api.stripe.com` o `api.paypal.com`.
+* **Cero recolección de PII:** Jamás se almacenan ni transmiten nombres de compradores, números de tarjeta o datos personales.
+* **Claves locales:** Tus API keys residen cifradas en `chrome.storage.local`.
+* **Marco ético:** No es una herramienta clínica ni realiza afirmaciones médicas sobre TDAH. Es un framework de autodisciplina operativa.
 
 ---
 
 ## 🖥️ Módulos de la Interfaz (SpaceX / Starlink HUD)
 
-1. **HUD Popup (`src/popup/`):**
-   - Medidor láser de ingresos diarios en tiempo real.
-   - Inyector manual de cobros rápidos (`+50 STRIPE`, `+30 PAYPAL`, `+100 FACTURA`).
-   - Botón de anulación inmediata de emergencia.
-   - Enlace directo a Mission Control.
-
-2. **Escudo Intersticial de Foco (`src/blocked/`):**
-   - Pantalla cinematográfica que interrumpe la navegación en sitios de ocio configurados (Twitter/X, YouTube, Reddit, Instagram, etc.).
-   - Visualización del delta económico pendiente para liberar el acceso.
-   - Entrada rápida para registrar cobros y continuar navegando inmediatamente.
-
-3. **Mission Control Dashboard (`src/dashboard/`):**
-   - **01 Telemetría:** Resumen del día, objetivos editables, métricas y desglose de fee comercial (3%).
-   - **02 Pasarelas & Facturas:** Configuración de claves Stripe y PayPal, simulador de webhooks y control de riesgo de doble conteo.
-   - **03 Escudo de Foco:** Gestión de sitios bloqueados y alta de dominios personalizados.
-   - **04 Anulación de Emergencia:** Registro histórico de desvíos temporales utilizados.
-   - **05 Modelo Comercial:** Simulación de fee del 3% y experimento opcional de penalización voluntaria.
+1. **HUD Popup (`src/popup/`):** Medidor láser en tiempo real, inyector de ventas manuales y acceso a anulación de emergencia.
+2. **Escudo Intersticial (`src/blocked/`):** Pantalla táctica con citas motivacionales, delta económico restante y desbloqueo inmediato.
+3. **Mission Control (`src/dashboard/`):**
+   * **01 Telemetría:** Indicadores de facturación diaria, progreso de meta y gráficos de rendimiento.
+   * **02 Pasarelas & Facturas:** Configuración de Stripe y PayPal, auditoría anti-duplicados e inyector de pruebas.
+   * **03 Escudo de Foco:** Gestión de lista negra de dominios bloqueados.
+   * **04 Anulación de Emergencia:** Historial de desvíos temporales y justificaciones.
+   * **05 Modelo Comercial:** Simulación de cobro del 3% por éxito y configuración de compromiso/penalización voluntaria.
 
 ---
 
-## 🧪 Pruebas Unitarias y Validación
-
-El proyecto cuenta con una suite de pruebas automatizadas:
+## 🧪 Pruebas Automatizadas
 
 ```bash
+# Tests unitarios del motor de facturación
 node tests/test_billing.js
+
+# Tests de integración de pasarelas Stripe y PayPal
+node tests/test_payments.js
 ```
 
-Para previsualizar la interfaz en un servidor web local sin empaquetar la extensión:
+Para previsualizar las pantallas en tu navegador local sin instalar la extensión:
 ```bash
 npm run preview
-# Abre http://localhost:3000/test-preview/ en tu navegador
+# Accede a http://localhost:3000/test-preview/
 ```
 
 ---
 
 ## 📄 Licencia
 
-Desarrollado bajo licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
+Desarrollado bajo licencia MIT por Jorge Morado (`jorge@morado.one`). Ver [LICENSE](LICENSE) para más detalles.
