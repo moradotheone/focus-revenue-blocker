@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "FocusRevenue — Bloqueador de Distracciones por Meta de Facturación",
+  "name": "FocusRevenue — Bloqueador por Meta de Facturación",
   "version": "0.1.0",
-  "description": "Bloquea sitios web de distracción hasta que alcances tu meta diaria de facturación. Diseñado para emprendedores independientes.",
+  "description": "Bloquea distracciones hasta que alcances tu meta diaria de facturación en Stripe o PayPal. Diseñado para emprendedores y creadores.",
+  "homepage_url": "https://moradotheone.github.io/focus-revenue-blocker/",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -16,7 +17,7 @@
       "32": "icons/icon32.png",
       "48": "icons/icon48.png"
     },
-    "default_title": "FocusRevenue"
+    "default_title": "FocusRevenue // Telemetry HUD"
   },
   "options_ui": {
     "page": "src/dashboard/dashboard.html",
@@ -32,7 +33,18 @@
     "tabs"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://api.stripe.com/*",
+    "https://api-m.paypal.com/*",
+    "https://api.sandbox.paypal.com/*",
+    "*://*.twitter.com/*",
+    "*://*.x.com/*",
+    "*://*.youtube.com/*",
+    "*://*.instagram.com/*",
+    "*://*.reddit.com/*",
+    "*://*.tiktok.com/*",
+    "*://*.facebook.com/*",
+    "*://*.twitch.tv/*",
+    "*://*.linkedin.com/*"
   ],
   "web_accessible_resources": [
     {
@@ -40,8 +52,15 @@
         "src/blocked/blocked.html",
         "src/blocked/blocked.css",
         "src/blocked/blocked.js",
-        "src/lib/*",
-        "icons/*"
+        "src/lib/storage.js",
+        "src/lib/billing.js",
+        "src/lib/rules.js",
+        "src/lib/payments.js",
+        "src/lib/monetization.js",
+        "icons/icon16.png",
+        "icons/icon32.png",
+        "icons/icon48.png",
+        "icons/icon128.png"
       ],
       "matches": ["<all_urls>"]
     }

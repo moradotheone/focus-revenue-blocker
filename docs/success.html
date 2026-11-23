@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago Confirmado // FocusRevenue</title>
+  <style>
+    :root {
+      --bg: #05070a;
+      --card-bg: #0a0e16;
+      --border: #162232;
+      --cyan: #00e5ff;
+      --green: #00f59b;
+      --text: #c5d1de;
+      --font-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      max-width: 520px;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+      border-radius: 4px;
+      box-shadow: 0 0 40px rgba(0, 245, 155, 0.15);
+    }
+    .beacon {
+      width: 16px;
+      height: 16px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 16px var(--green);
+      margin: 0 auto 20px auto;
+    }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--green);
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      color: #ffffff;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .ref-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--cyan);
+      margin: 20px 0;
+      border-radius: 2px;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--cyan);
+      color: #05070a;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 12px 24px;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      background: #33ecff;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="beacon"></div>
+    <div class="tag">STRIPE CHECKOUT // CONFIRMACIÓN OFICIAL</div>
+    <h1>Pago Liquidado con Éxito</h1>
+    <p>Tu abono de cuota o compromiso proactivo ha sido procesado correctamente bajo la pasarela bancaria de Stripe.</p>
+    
+    <div class="ref-box" id="refDisplay">
+      ESTADO: LIQUIDACIÓN REGISTRADA EN LIBRO MAYOR
+    </div>
+
+    <p style="font-size: 12px; color: #7a8b9e;">
+      Puedes cerrar esta pestaña o volver a tu navegador. Tu telemetría y balance en FocusRevenue quedan completamente al día.
+    </p>
+
+    <div style="margin-top: 24px;">
+      <a href="javascript:window.close();" class="btn">VOLVER AL NAVEGADOR</a>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const session = params.get('session_id') || params.get('client_reference_id');
+    if (session) {
+      document.getElementById('refDisplay').textContent = 'REFERENCIA STRIPE: ' + session;
+    }
+  </script>
+</body>
+</html>

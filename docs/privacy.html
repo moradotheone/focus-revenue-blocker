@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidad // FocusRevenue</title>
+  <style>
+    :root {
+      --bg: #05070a;
+      --card-bg: #0a0e16;
+      --border: #162232;
+      --cyan: #00e5ff;
+      --green: #00f59b;
+      --text: #c5d1de;
+      --text-dim: #7a8b9e;
+      --font-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono', monospace;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 36px 40px;
+      border-radius: 4px;
+    }
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      color: #ffffff;
+      margin-top: 0;
+      letter-spacing: 1px;
+    }
+    h2 {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      color: var(--cyan);
+      letter-spacing: 0.8px;
+      margin-top: 28px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    p, li {
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(0, 245, 155, 0.1);
+      border: 1px solid rgba(0, 245, 155, 0.3);
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand-tag">LEGAL & PRIVACY // CHROME WEB STORE COMPLIANT</div>
+    <h1>Política de Privacidad de FocusRevenue</h1>
+    <div class="badge">🔒 ARQUITECTURA DE PRIVACIDAD ESTRICTA (ZERO-PII)</div>
+    <p><strong>Última actualización:</strong> 23 de noviembre de 2026</p>
+    <p>
+      Esta Política de Privacidad describe cómo <strong>FocusRevenue</strong> («la Extensión», desarrollada por Jorge Morado, contacto: <code>jorge@morado.one</code>) gestiona y protege los datos cuando utilizas nuestra extensión para navegadores basados en Chromium.
+    </p>
+
+    <h2>1. Propósito Único de la Extensión (Single Purpose)</h2>
+    <p>
+      FocusRevenue tiene un único propósito: ayudar a profesionales independientes, autónomos y creadores a mantener el enfoque en sus tareas de facturación, bloqueando temporalmente sitios web de distracción seleccionados hasta que se alcance la meta económica diaria o semanal acordada.
+    </p>
+
+    <h2>2. Datos que NO Recopilamos (Zero-PII)</h2>
+    <ul>
+      <li><strong>Datos personales de tus clientes:</strong> La extensión jamás lee, procesa, transfiere ni almacena nombres, correos electrónicos, números de teléfono ni domicilios de los clientes que te pagan.</li>
+      <li><strong>Datos bancarios o de tarjetas de pago:</strong> La extensión no recopila números de tarjeta de crédito, cuentas bancarias ni credenciales bancarias.</li>
+      <li><strong>Historial de navegación web:</strong> La extensión únicamente intercepta a nivel de red los dominios incluidos expresamente en tu lista negra de bloqueo (por ejemplo, <code>twitter.com</code> o <code>youtube.com</code>) usando <code>chrome.declarativeNetRequest</code>. No rastrea ni registra las webs que visitas fuera de esa lista.</li>
+      <li><strong>Datos de salud médica:</strong> El ángulo de enfoque para personas con rasgos de TDAH es estrictamente un marco de autodisciplina y productividad operativa, nunca un servicio médico ni diagnóstico clínico. No se recopilan datos de salud.</li>
+    </ul>
+
+    <h2>3. Datos Técnicos y Almacenamiento Local</h2>
+    <p>
+      Todos los ajustes de la extensión se almacenan <strong>estrictamente en tu dispositivo local</strong> mediante la API <code>chrome.storage.local</code>:
+    </p>
+    <ul>
+      <li>Metas económicas diarias (importe numérico y divisa).</li>
+      <li>Claves de solo lectura de pasarelas de pago (Restricted API Keys de Stripe o credenciales OAuth de PayPal introducidas voluntariamente por el usuario).</li>
+      <li>Metadatos numéricos de transacciones (importe numérico, fecha y fuente) para calcular el progreso diario.</li>
+      <li>Historial de anulaciones de emergencia (motivo ingresado y duración).</li>
+    </ul>
+
+    <h2>4. Comunicaciones de Red y Terceros</h2>
+    <ul>
+      <li><strong>Stripe API (api.stripe.com):</strong> Las llamadas para consultar balances o cobros se realizan directamente desde tu navegador a los servidores oficiales de Stripe mediante HTTPS seguro. Las claves nunca pasan por servidores intermedios de FocusRevenue.</li>
+      <li><strong>PayPal API (api-m.paypal.com):</strong> Las consultas se ejecutan directamente con la API REST de PayPal.</li>
+      <li><strong>Pagos a FocusRevenue:</strong> Cuando liquidas tu cuota o penalización, el pago se realiza íntegramente dentro de los servidores seguros de <strong>Stripe Checkout</strong> con cifrado bancario TLS. FocusRevenue no almacena datos de tu tarjeta.</li>
+    </ul>
+
+    <h2>5. Eliminación de Datos y Derechos</h2>
+    <p>
+      Dado que todos tus datos residen únicamente en el almacenamiento local de tu navegador, puedes eliminar la totalidad de tus datos en cualquier momento haciendo clic en <em>«Limpiar Historial»</em> en la consola de la extensión o simplemente <strong>desinstalando la extensión de Chrome</strong>.
+    </p>
+
+    <h2>6. Contacto</h2>
+    <p>
+      Para cualquier duda o consulta sobre esta política, puedes contactar al responsable del proyecto:  
+      <strong>Jorge Morado</strong> — <a href="mailto:jorge@morado.one">jorge@morado.one</a>.
+    </p>
+
+    <footer>
+      <p>© 2026 FocusRevenue. Desarrollado bajo licencia MIT. Código fuente abierto en <a href="https://github.com/moradotheone/focus-revenue-blocker" target="_blank">GitHub</a>.</p>
+    </footer>
+  </div>
+</body>
+</html>
