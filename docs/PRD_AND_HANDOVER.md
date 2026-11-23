@@ -43,8 +43,8 @@ FocusRevenue bloquea por hardware y red los sitios distractores desde las 08:00 
 | **RF-06** | **Detección anti-duplicados** | Validación de hash e IDs de transacción para evitar contar dos veces la misma venta al refrescar o cambiar de pasarela. | ✅ Implementado |
 | **RF-07** | **Anulación de emergencia** | Bypass temporal configurable (5, 10, 20 minutos) con registro de motivo obligatorio para introspección y auto-responsabilidad. | ✅ Implementado |
 | **RF-08** | **Mission Control Dashboard** | Consola centralizada con 5 pestañas operativas: Telemetría, Pasarelas & Facturación, Escudo de Bloqueo, Anulación de Emergencia y Modelo Comercial. | ✅ Implementado |
-| **RF-09** | **Cobro al usuario por éxito** | Liquidación o cobro de comisión del 3% sobre los ingresos auditados mediante Stripe Checkout / Payment Links. | ⏳ Próximo Sprint (v0.2) |
-| **RF-10** | **Penalización proactiva voluntaria** | Compromiso monetario (diario, semanal, mensual) fijado previamente que se liquida si no se cumple el objetivo fijado. | ⏳ Próximo Sprint (v0.2) |
+| **RF-09** | **Cobro al usuario por éxito** | Liquidación o cobro de comisión del 3% sobre los ingresos auditados mediante Stripe Checkout / Payment Links oficial de Jorge. | ✅ Implementado |
+| **RF-10** | **Penalización proactiva voluntaria** | Compromiso monetario (diario, semanal, mensual) acordado previamente que se liquida vía Stripe al incumplir objetivo sin justificación. | ✅ Implementado |
 
 ### 2.2 Requerimientos No Funcionales (RNF)
 
@@ -180,16 +180,17 @@ zip -r /Users/moradotheone/Documents/devIA/focus-revenue-mvp-v0.zip . -x "*.git*
 
 ## 5. Roadmap Inmediato y Siguientes Pasos
 
-### Sprint 1: Motor de Monetización del Usuario (En desarrollo)
+### Sprint 1: Motor de Monetización del Usuario (✅ Completado e Integrado)
+* **Pasarela Oficial de Cobro (Stripe Merchant Live de Jorge):**
+  * Clave pública oficial vinculada: `pk_live_51ROSkRHVYSsld6jc5I50FHvFKhb2XK7mW2HvZX78EoGEAXmDhCuMlwBNcd2nZifldUpjVWxyO7lo6KEDRh3RnmS100O1tRqOTI`
+  * Enlace oficial de Stripe Checkout / Payment Link: `https://buy.stripe.com/6oUcN50Xyfty6s83OVb3q05`
 * **Cobro por Éxito (3%):**
-  * Generación dinámica de sesión de **Stripe Payment Links** o **Stripe Checkout** para abonar la comisión del 3% sobre la facturación acumulada del ciclo.
-  * Selector de periodicidad de facturación: diaria, semanal o mensual.
-* **Penalización Proactiva (Commitment Contract):**
-  * Configuración de penalización voluntaria acordada previamente (ej. 15 €, 50 € o 100 €).
-  * Retención de método de pago (Stripe SetupIntent / Customer Authorization) que solo se ejecuta si el usuario termina el ciclo con la meta sin cumplir y sin anulación justificada.
-* **Múltiples Pasarelas de Cobro:**
-  * Conexión directa a la cuenta de Stripe del propietario del producto (Jorge Morado).
-  * Soporte secundario opcional para cobro vía PayPal o Crypto/USDC para clientes internacionales.
+  * Módulo `src/lib/monetization.js` calcula automáticamente el 3% de la facturación neta auditada en el ciclo.
+  * Selector de periodicidad de facturación: diaria, semanal o mensual con cálculo dinámico de fechas.
+* **Penalización Proactiva (Commitment Contract / "Skin in the Game"):**
+  * Configuración de penalización voluntaria acordada previamente (15 €, 30 €, 50 € o personalizada).
+  * Registro de días incumplidos y evaluación ética (exención si se utilizó anulación de emergencia).
+  * Terminal de liquidación con Stripe Checkout y libro mayor de pagos en Mission Control.
 
 ### Sprint 2: Webhooks Serverless en Tiempo Real
 * Despliegue de un micro-endpoint serverless (Cloudflare Worker o Supabase Edge Function) para recibir webhooks de Stripe y PayPal instantáneamente, eliminando la necesidad de sondeo periódico de 15 minutos.
