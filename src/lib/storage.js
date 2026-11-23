@@ -76,12 +76,17 @@ const DEFAULT_STATE = {
     billingCycle: 'daily', // 'daily' | 'weekly' | 'monthly'
     feePercentage: 3.0,
     penaltyEnabled: false,
-    penaltyAmount: 15.00,
+    penaltyAmount: 9.99,
     penaltyAccepted: false,
     commitmentStartDate: null,
     pendingSettlement: 0.00,
     settlementHistory: [],
     missedDaysLedger: []
+  },
+  reminders: {
+    billingDismissedDate: null,
+    penaltyDismissedDate: null,
+    onboardingCompleted: false
   }
 };
 
@@ -138,6 +143,12 @@ const StorageService = {
     // Ensure paymentProviders structure exists
     if (!state.paymentProviders) {
       state.paymentProviders = JSON.parse(JSON.stringify(DEFAULT_STATE.paymentProviders));
+      modified = true;
+    }
+
+    // Ensure reminders structure exists
+    if (!state.reminders) {
+      state.reminders = JSON.parse(JSON.stringify(DEFAULT_STATE.reminders));
       modified = true;
     }
 

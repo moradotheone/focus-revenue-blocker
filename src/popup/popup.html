@@ -23,6 +23,36 @@
       </div>
     </header>
 
+    <!-- Daily Reminders Area -->
+    <div id="popupBillingReminder" class="hud-reminder-card hidden">
+      <div class="reminder-left">
+        <span class="reminder-pulse"></span>
+        <div class="reminder-txt">
+          <strong>FACTURACIÓN DESCONECTADA</strong>
+          <span>Conecta Stripe para auditar cobros.</span>
+        </div>
+      </div>
+      <div class="reminder-btns">
+        <button id="btnPopupSetupBilling" class="btn-hud-chip btn-cyan">CONECTAR</button>
+        <button id="btnDismissBillingReminder" class="btn-dismiss" title="Recordar mañana">✕</button>
+      </div>
+    </div>
+
+    <div id="popupPenaltyReminder" class="hud-reminder-card hidden">
+      <div class="reminder-left">
+        <span class="reminder-pulse pulse-amber"></span>
+        <div class="reminder-txt">
+          <strong>COMPROMISO PENDIENTE</strong>
+          <span>Activa tu penalización con 1 clic:</span>
+        </div>
+      </div>
+      <div class="reminder-btns">
+        <button id="btnQuickPenaltyDaily" class="btn-hud-chip btn-amber" title="9.99€ por día incumplido">9.99€/DÍA</button>
+        <button id="btnQuickPenaltyWeekly" class="btn-hud-chip btn-amber" title="49.99€ por semana incumplida">49.99€/SEM</button>
+        <button id="btnDismissPenaltyReminder" class="btn-dismiss" title="Recordar mañana">✕</button>
+      </div>
+    </div>
+
     <!-- Main Telemetry Gauge -->
     <section class="telemetry-card">
       <div class="telemetry-header">
@@ -138,6 +168,7 @@
   <script src="../lib/billing.js"></script>
   <script src="../lib/rules.js"></script>
   <script src="../lib/payments.js"></script>
+  <script src="../lib/monetization.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

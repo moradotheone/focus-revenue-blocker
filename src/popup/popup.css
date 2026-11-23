@@ -558,3 +558,88 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* Daily Reminder Cards */
+.hud-reminder-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10, 14, 22, 0.95);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 8px 10px;
+  border-radius: 2px;
+  margin-top: 6px;
+  animation: fadeIn 0.2s ease;
+}
+
+.hud-reminder-card .reminder-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-reminder-card .reminder-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+  flex-shrink: 0;
+}
+
+.hud-reminder-card .pulse-amber {
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+.hud-reminder-card .reminder-txt {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-reminder-card .reminder-txt strong {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.hud-reminder-card .reminder-txt span {
+  font-size: 8.5px;
+  color: var(--text-muted);
+}
+
+.hud-reminder-card .reminder-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-reminder-card .btn-cyan {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  font-size: 8.5px;
+  padding: 3px 6px;
+}
+
+.hud-reminder-card .btn-amber {
+  background: rgba(255, 170, 0, 0.15);
+  color: var(--amber);
+  border: 1px solid rgba(255, 170, 0, 0.4);
+  font-size: 8.5px;
+  padding: 3px 6px;
+}
+
+.hud-reminder-card .btn-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.hud-reminder-card .btn-dismiss:hover {
+  color: #ffffff;
+}

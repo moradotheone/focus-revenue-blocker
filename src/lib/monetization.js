@@ -9,7 +9,9 @@ const JORGE_STRIPE_CONFIG = {
   publishableKey: 'pk_live_51ROSkRHVYSsld6jc5I50FHvFKhb2XK7mW2HvZX78EoGEAXmDhCuMlwBNcd2nZifldUpjVWxyO7lo6KEDRh3RnmS100O1tRqOTI',
   paymentLinkUrl: 'https://buy.stripe.com/6oUcN50Xyfty6s83OVb3q05',
   defaultFeePercentage: 3.0,
-  defaultPenaltyAmount: 15.00
+  defaultDailyPenalty: 9.99,
+  defaultWeeklyPenalty: 49.99,
+  defaultPenaltyAmount: 9.99
 };
 
 const MonetizationService = {
@@ -108,6 +110,69 @@ const MonetizationService = {
     } catch (e) {
       return baseUrl;
     }
+  },
+
+  /**
+   * Sets up a user commitment contract in a single call.
+   * @param {Object} state 
+   * @param {'daily'|'weekly'} cycle 
+   * @param {number} [customAmount] 
+   * @returns {Object} updated state
+   */
+  setCommitment(state, cycle = 'daily', customAmount = null) {
+    if (!state.monetization) state.monetization = {};
+    state.monetization.penaltyEnabled = true;
+    state.monetization.penaltyAccepted = true;
+    state.monetization.billingCycle = cycle;
+    state.monetization.penaltyAmount = customAmount !== null 
+      ? Number(customAmount) 
+      : (cycle === 'weekly' ? JORGE_STRIPE_CONFIG.defaultWeeklyPenalty : JORGE_STRIPE_CONFIG.defaultDailyPenalty);
+    state.monetization.commitmentStartDate = new Date().toISOString();
+    return state;
+  },
+
+  /**
+   * Checks if the upfront billing setup reminder should be displayed today.
+   * @param {Object} state 
+   * @param {string} todayStr 
+   * @returns {boolean}
+   */
+  shouldShowBillingReminder(state, todayStr) {
+    const providers = state.paymentProviders || {};
+    const hasActiveGateway = (providers.stripe && providers.stripe.enabled) || 
+                             (providers.paypal && providers.paypal.enabled);
+    if (hasActiveGateway) return false;
+
+    const reminders = state.reminders || {};
+    return reminders.billingDismissedDate !== todayStr;
+  },
+
+  /**
+   * Checks if the penalty commitment reminder should be displayed today.
+   * @param {Object} state 
+   * @param {string} todayStr 
+   * @returns {boolean}
+   */
+  shouldShowPenaltyReminder(state, todayStr) {
+    const mon = state.monetization || {};
+    if (mon.penaltyEnabled && mon.penaltyAccepted) return false;
+
+    const reminders = state.reminders || {};
+    return reminders.penaltyDismissedDate !== todayStr;
+  },
+
+  /**
+   * Dismisses a reminder for the rest of today.
+   * @param {Object} state 
+   * @param {'billing'|'penalty'} type 
+   * @param {string} todayStr 
+   * @returns {Object}
+   */
+  dismissReminder(state, type, todayStr) {
+    if (!state.reminders) state.reminders = {};
+    if (type === 'billing') state.reminders.billingDismissedDate = todayStr;
+    if (type === 'penalty') state.reminders.penaltyDismissedDate = todayStr;
+    return state;
   },
 
   /**

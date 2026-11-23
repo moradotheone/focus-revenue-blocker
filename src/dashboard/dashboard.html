@@ -70,6 +70,36 @@
         </div>
       </header>
 
+      <!-- Daily Reminders Bar -->
+      <div id="dashBillingReminder" class="dash-reminder-banner hidden">
+        <div class="dash-rem-left">
+          <span class="alert-pulse"></span>
+          <div>
+            <strong>PASARELA DE CLIENTES NO CONFIGURADA</strong>
+            <span>Conecta tu Stripe o PayPal para automatizar la lectura de ventas y el desbloqueo del escudo.</span>
+          </div>
+        </div>
+        <div class="dash-rem-right">
+          <button id="btnDashSetupBilling" class="btn-cyan-action btn-sm">CONECTAR PASARELA</button>
+          <button id="btnDashDismissBilling" class="btn-hud-ghost btn-sm">RECORDAR MAÑANA ✕</button>
+        </div>
+      </div>
+
+      <div id="dashPenaltyReminder" class="dash-reminder-banner penalty-rem hidden">
+        <div class="dash-rem-left">
+          <span class="alert-pulse pulse-amber"></span>
+          <div>
+            <strong>COMPROMISO PROACTIVO PENDIENTE ("SKIN IN THE GAME")</strong>
+            <span>Establece tu penalización por incumplimiento para destruir la procrastinación:</span>
+          </div>
+        </div>
+        <div class="dash-rem-right">
+          <button id="btnDashQuickDaily" class="btn-hud-warning btn-sm">🎯 DIARIO (9.99 €)</button>
+          <button id="btnDashQuickWeekly" class="btn-hud-warning btn-sm">🛡️ SEMANAL (49.99 €)</button>
+          <button id="btnDashDismissPenalty" class="btn-hud-ghost btn-sm">✕</button>
+        </div>
+      </div>
+
       <!-- TAB 1: TELEMETRÍA (OVERVIEW) -->
       <section class="console-tab active" id="tab-overview">
         <!-- Goal Configuration HUD -->
@@ -453,17 +483,17 @@
                 🔒 CONSENTIMIENTO ACTIVO: Al activar esta opción, declaras tu voluntad expresa de autodisciplinarte mediante consecuencias financieras reales.
               </p>
               <div class="grid-field" style="margin-bottom: 12px;">
-                <label>IMPORTE DE LA PENALIZACIÓN POR DÍA INCUMPLIDO (€)</label>
+                <label>IMPORTE DE LA PENALIZACIÓN POR INCUMPLIMIENTO (€)</label>
                 <select id="penaltyPresetSelect">
-                  <option value="15">15.00 € (Estándar recomendado)</option>
-                  <option value="30">30.00 € (Alta intensidad)</option>
-                  <option value="50">50.00 € (Compromiso radical)</option>
+                  <option value="9.99">9.99 € / $9.99 (Diario recomendado)</option>
+                  <option value="49.99">49.99 € / $49.99 (Semanal recomendado)</option>
+                  <option value="15">15.00 € (Estándar)</option>
                   <option value="custom">Personalizado...</option>
                 </select>
               </div>
               <div class="grid-field" id="penaltyCustomField" style="display: none; margin-bottom: 12px;">
                 <label>IMPORTE PERSONALIZADO (€)</label>
-                <input type="number" id="penaltyAmountInput" value="15" min="1" step="any">
+                <input type="number" id="penaltyAmountInput" value="9.99" min="1" step="any">
               </div>
               <div class="telemetry-row" style="padding: 8px 0;">
                 <span>Días incumplidos registrados en el ciclo:</span>
@@ -537,6 +567,61 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- UPFRONT ONBOARDING WIZARD MODAL -->
+  <div id="onboardingModal" class="hud-modal-overlay hidden">
+    <div class="hud-modal-box onboarding-box">
+      <div class="card-tag">DESPLIEGUE INICIAL // ONBOARDING STARLINK HUD</div>
+      <h2 style="font-family: var(--font-mono); font-size: 18px; color: #fff; margin: 8px 0;">Configuración de Enfoque y Facturación</h2>
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 20px;">
+        Configura tu meta económica y tu compromiso en 30 segundos para armar el escudo de bloqueo.
+      </p>
+
+      <div class="onboarding-step">
+        <label class="step-label">1. TU META DIARIA DE FACTURACIÓN</label>
+        <div class="quick-chips-row" id="onboardingGoalChips">
+          <button type="button" class="btn-chip-goal active" data-goal="200">200 € / día (Recomendado)</button>
+          <button type="button" class="btn-chip-goal" data-goal="100">100 € / día</button>
+          <button type="button" class="btn-chip-goal" data-goal="500">500 € / día</button>
+        </div>
+      </div>
+
+      <div class="onboarding-step" style="margin-top: 16px;">
+        <label class="step-label">2. ESTABLECE TU COMPROMISO PROACTIVO ("SKIN IN THE GAME")</label>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
+          Solo se aplica esta penalización voluntaria si terminas el ciclo sin cumplir tu meta ni usar anulación justificada.
+        </p>
+        <div class="quick-chips-row" id="onboardingPenaltyChips">
+          <button type="button" class="btn-chip-penalty active" data-cycle="daily" data-amount="9.99">
+            <strong>9.99 € / DÍA</strong>
+            <span>Compromiso diario recomendado</span>
+          </button>
+          <button type="button" class="btn-chip-penalty" data-cycle="weekly" data-amount="49.99">
+            <strong>49.99 € / SEMANA</strong>
+            <span>Compromiso semanal</span>
+          </button>
+          <button type="button" class="btn-chip-penalty" data-cycle="none" data-amount="0">
+            <strong>SIN PENALIZACIÓN</strong>
+            <span>Solo cuota de éxito 3%</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="onboarding-step" style="margin-top: 16px;">
+        <label class="step-label">3. CONEXIÓN DE FACTURACIÓN (OPCIONAL AHORA)</label>
+        <input type="password" id="onboardingStripeKey" placeholder="Pega tu Restricted Key de Stripe (rk_live_...) o déjalo vacío" style="width: 100%; background: #05070a; border: 1px solid var(--border-subtle); color: #fff; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; border-radius: 2px;">
+        <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 6px;">
+          Puedes conectar Stripe o PayPal más adelante o registrar facturas manualmente en cualquier momento.
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="btnFinishOnboarding" class="btn-cyan-action" style="padding: 12px 24px; font-size: 12px;">
+          🚀 ARMAR ESCUDO Y COMENZAR
+        </button>
+      </div>
+    </div>
   </div>
 
   <script src="../lib/storage.js"></script>

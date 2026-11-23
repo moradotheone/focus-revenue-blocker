@@ -22,6 +22,27 @@ async function refreshUI() {
   renderProgress(appProgress);
   renderStatusBadge(appProgress);
   renderEmergencyBanner(appProgress, appState);
+  renderReminders(appState, appProgress.today);
+}
+
+function renderReminders(state, todayStr) {
+  const billingCard = document.getElementById('popupBillingReminder');
+  const penaltyCard = document.getElementById('popupPenaltyReminder');
+
+  if (typeof MonetizationService !== 'undefined') {
+    const showBilling = MonetizationService.shouldShowBillingReminder(state, todayStr);
+    const showPenalty = MonetizationService.shouldShowPenaltyReminder(state, todayStr);
+
+    if (billingCard) {
+      if (showBilling) billingCard.classList.remove('hidden');
+      else billingCard.classList.add('hidden');
+    }
+
+    if (penaltyCard) {
+      if (showPenalty) penaltyCard.classList.remove('hidden');
+      else penaltyCard.classList.add('hidden');
+    }
+  }
 }
 
 function renderProgress(p) {
@@ -165,6 +186,63 @@ function setupEventListeners() {
     await StorageService.setState(appState);
     await refreshUI();
   });
+
+  // Daily Reminder Actions
+  const btnSetupBilling = document.getElementById('btnPopupSetupBilling');
+  if (btnSetupBilling) {
+    btnSetupBilling.addEventListener('click', () => {
+      const url = '../dashboard/dashboard.html?tab=tab-billing';
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+        chrome.tabs.create({ url });
+      } else {
+        window.open(url, '_blank');
+      }
+    });
+  }
+
+  const btnDismissBilling = document.getElementById('btnDismissBillingReminder');
+  if (btnDismissBilling) {
+    btnDismissBilling.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.dismissReminder(appState, 'billing', appProgress.today);
+        await StorageService.setState(appState);
+        await refreshUI();
+      }
+    });
+  }
+
+  const btnQuickDaily = document.getElementById('btnQuickPenaltyDaily');
+  if (btnQuickDaily) {
+    btnQuickDaily.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.setCommitment(appState, 'daily', 9.99);
+        await StorageService.setState(appState);
+        await refreshUI();
+      }
+    });
+  }
+
+  const btnQuickWeekly = document.getElementById('btnQuickPenaltyWeekly');
+  if (btnQuickWeekly) {
+    btnQuickWeekly.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.setCommitment(appState, 'weekly', 49.99);
+        await StorageService.setState(appState);
+        await refreshUI();
+      }
+    });
+  }
+
+  const btnDismissPenalty = document.getElementById('btnDismissPenaltyReminder');
+  if (btnDismissPenalty) {
+    btnDismissPenalty.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.dismissReminder(appState, 'penalty', appProgress.today);
+        await StorageService.setState(appState);
+        await refreshUI();
+      }
+    });
+  }
 
   // Open Mission Control (Dashboard)
   document.getElementById('btnOpenDashboard').addEventListener('click', () => {

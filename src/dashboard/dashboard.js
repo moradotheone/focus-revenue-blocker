@@ -26,6 +26,41 @@ async function refreshDashboard() {
   renderSites(appState);
   renderEmergencyHistory(appState);
   renderMonetization(appState, appProgress);
+  renderDashboardReminders(appState, appProgress.today);
+  checkOnboarding(appState);
+}
+
+function renderDashboardReminders(state, todayStr) {
+  const billingBanner = document.getElementById('dashBillingReminder');
+  const penaltyBanner = document.getElementById('dashPenaltyReminder');
+
+  if (typeof MonetizationService !== 'undefined') {
+    const showBilling = MonetizationService.shouldShowBillingReminder(state, todayStr);
+    const showPenalty = MonetizationService.shouldShowPenaltyReminder(state, todayStr);
+
+    if (billingBanner) {
+      if (showBilling) billingBanner.classList.remove('hidden');
+      else billingBanner.classList.add('hidden');
+    }
+
+    if (penaltyBanner) {
+      if (showPenalty) penaltyBanner.classList.remove('hidden');
+      else penaltyBanner.classList.add('hidden');
+    }
+  }
+}
+
+let onboardingShown = false;
+function checkOnboarding(state) {
+  if (onboardingShown) return;
+  const isCompleted = state.reminders && state.reminders.onboardingCompleted;
+  const forceWelcome = window.location.search.includes('welcome=1');
+  const modal = document.getElementById('onboardingModal');
+
+  if (modal && (!isCompleted || forceWelcome)) {
+    modal.classList.remove('hidden');
+    onboardingShown = true;
+  }
 }
 
 function setupTabNavigation() {
@@ -717,6 +752,116 @@ function setupEventListeners() {
       document.getElementById('settleRefInput').value = '';
       await refreshDashboard();
       alert(`✓ Pago registrado exitosamente por importe de ${BillingEngine.formatCurrency(amount, appState.dailyGoal.currency)}.\nReferencia: ${ref}`);
+    });
+  }
+
+  // Dashboard Reminder Event Listeners
+  const btnDashBilling = document.getElementById('btnDashSetupBilling');
+  if (btnDashBilling) {
+    btnDashBilling.addEventListener('click', () => {
+      // Switch to Tab 02
+      const tabBtn = document.querySelector('[data-tab="tab-billing"]');
+      if (tabBtn) tabBtn.click();
+    });
+  }
+
+  const btnDashDismissBilling = document.getElementById('btnDashDismissBilling');
+  if (btnDashDismissBilling) {
+    btnDashDismissBilling.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.dismissReminder(appState, 'billing', appProgress.today);
+        await StorageService.setState(appState);
+        await refreshDashboard();
+      }
+    });
+  }
+
+  const btnDashDaily = document.getElementById('btnDashQuickDaily');
+  if (btnDashDaily) {
+    btnDashDaily.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.setCommitment(appState, 'daily', 9.99);
+        await StorageService.setState(appState);
+        await refreshDashboard();
+        alert('✓ Compromiso diario activado exitosamente (9.99 € por día incumplido).');
+      }
+    });
+  }
+
+  const btnDashWeekly = document.getElementById('btnDashQuickWeekly');
+  if (btnDashWeekly) {
+    btnDashWeekly.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.setCommitment(appState, 'weekly', 49.99);
+        await StorageService.setState(appState);
+        await refreshDashboard();
+        alert('✓ Compromiso semanal activado exitosamente (49.99 € por semana incumplida).');
+      }
+    });
+  }
+
+  const btnDashDismissPenalty = document.getElementById('btnDashDismissPenalty');
+  if (btnDashDismissPenalty) {
+    btnDashDismissPenalty.addEventListener('click', async () => {
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.dismissReminder(appState, 'penalty', appProgress.today);
+        await StorageService.setState(appState);
+        await refreshDashboard();
+      }
+    });
+  }
+
+  // Onboarding Wizard Interactivity
+  let chosenGoal = 200;
+  let chosenPenalty = { cycle: 'daily', amount: 9.99 };
+
+  document.querySelectorAll('#onboardingGoalChips .btn-chip-goal').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('#onboardingGoalChips .btn-chip-goal').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      chosenGoal = Number(e.currentTarget.getAttribute('data-goal')) || 200;
+    });
+  });
+
+  document.querySelectorAll('#onboardingPenaltyChips .btn-chip-penalty').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('#onboardingPenaltyChips .btn-chip-penalty').forEach(b => b.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      const cycle = e.currentTarget.getAttribute('data-cycle');
+      const amount = Number(e.currentTarget.getAttribute('data-amount')) || 0;
+      chosenPenalty = { cycle, amount };
+    });
+  });
+
+  const btnFinishOnboard = document.getElementById('btnFinishOnboarding');
+  if (btnFinishOnboard) {
+    btnFinishOnboard.addEventListener('click', async () => {
+      // 1. Set daily goal
+      appState.dailyGoal.targetAmount = chosenGoal;
+
+      // 2. Set commitment
+      if (chosenPenalty.cycle === 'none') {
+        appState.monetization.penaltyEnabled = false;
+        appState.monetization.penaltyAccepted = false;
+      } else {
+        MonetizationService.setCommitment(appState, chosenPenalty.cycle, chosenPenalty.amount);
+      }
+
+      // 3. Set optional Stripe restricted key
+      const stripeInput = document.getElementById('onboardingStripeKey');
+      if (stripeInput && stripeInput.value.trim()) {
+        appState.paymentProviders.stripe.apiKey = stripeInput.value.trim();
+        appState.paymentProviders.stripe.enabled = true;
+      }
+
+      // 4. Mark onboarding completed
+      if (!appState.reminders) appState.reminders = {};
+      appState.reminders.onboardingCompleted = true;
+
+      await StorageService.setState(appState);
+      const modal = document.getElementById('onboardingModal');
+      if (modal) modal.classList.add('hidden');
+      await refreshDashboard();
     });
   }
 }
