@@ -4,7 +4,7 @@
  */
 
 try {
-  importScripts('../lib/storage.js', '../lib/billing.js', '../lib/rules.js', '../lib/payments.js');
+  importScripts('../lib/storage.js', '../lib/billing.js', '../lib/rules.js', '../lib/payments.js', '../lib/monetization.js');
 } catch (e) {
   console.warn('importScripts failed or not supported in this context:', e);
 }

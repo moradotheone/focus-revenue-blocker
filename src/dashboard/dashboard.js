@@ -295,26 +295,116 @@ function renderEmergencyHistory(state) {
 }
 
 function renderMonetization(state, p) {
-  const totalAllTime = (state.transactions || []).reduce((acc, t) => acc + Number(t.amount || 0), 0);
-  const feeRate = (state.monetization && state.monetization.feePercentage) ? state.monetization.feePercentage / 100 : 0.03;
-  const feeAllTime = totalAllTime * feeRate;
+  const mon = state.monetization || {};
 
-  document.getElementById('monetizationTotalRev').textContent = BillingEngine.formatCurrency(totalAllTime, p.currency, p.symbol);
-  document.getElementById('monetizationFeeRev').textContent = BillingEngine.formatCurrency(feeAllTime, p.currency, p.symbol);
-
-  const penaltyToggle = document.getElementById('penaltyToggle');
-  const penaltyDetails = document.getElementById('penaltyDetails');
-  const penaltyAmount = document.getElementById('penaltyAmountInput');
-
-  penaltyToggle.checked = !!(state.monetization && state.monetization.penaltyEnabled);
-  if (penaltyToggle.checked) {
-    penaltyDetails.classList.remove('hidden');
-  } else {
-    penaltyDetails.classList.add('hidden');
+  // Merchant Details
+  const pkDisplay = document.getElementById('stripeMerchantPkDisplay');
+  if (pkDisplay && mon.merchantStripePublishableKey) {
+    pkDisplay.textContent = mon.merchantStripePublishableKey;
+  }
+  const linkAnchor = document.getElementById('merchantLinkAnchor');
+  if (linkAnchor && mon.merchantPaymentLink) {
+    linkAnchor.href = mon.merchantPaymentLink;
+    linkAnchor.textContent = mon.merchantPaymentLink.replace(/^https?:\/\//, '');
   }
 
-  if (state.monetization && state.monetization.penaltyAmount) {
-    penaltyAmount.value = state.monetization.penaltyAmount;
+  // Modality & Cycle
+  const modeSelect = document.getElementById('monetizationModeSelect');
+  if (modeSelect) modeSelect.value = mon.activeMode || 'hybrid';
+
+  const cycleSelect = document.getElementById('monetizationCycleSelect');
+  const currentCycle = mon.billingCycle || 'daily';
+  if (cycleSelect) cycleSelect.value = currentCycle;
+
+  // Compute Cycle Dates
+  if (typeof MonetizationService !== 'undefined') {
+    const cycleDates = MonetizationService.getCycleDates(currentCycle);
+    const cycleDisplay = document.getElementById('cycleDatesDisplay');
+    if (cycleDisplay) {
+      cycleDisplay.value = `${cycleDates.startDate} ➔ ${cycleDates.endDate} (${currentCycle.toUpperCase()})`;
+    }
+
+    // Modality A: 3% Success Fee
+    const cycleRev = MonetizationService.calculateCycleRevenue(state.transactions || [], currentCycle);
+    const cycleFee = MonetizationService.calculateSuccessFee(cycleRev, mon.feePercentage || 3.0);
+    const cycleRevEl = document.getElementById('monetizationCycleRev');
+    const cycleFeeEl = document.getElementById('monetizationCycleFee');
+    if (cycleRevEl) cycleRevEl.textContent = BillingEngine.formatCurrency(cycleRev, p.currency, p.symbol);
+    if (cycleFeeEl) cycleFeeEl.textContent = BillingEngine.formatCurrency(cycleFee, p.currency, p.symbol);
+
+    // Modality Visibility
+    const cardSuccess = document.getElementById('cardSuccessFee');
+    const cardPenalty = document.getElementById('cardPenalty');
+    if (cardSuccess) cardSuccess.style.display = mon.activeMode === 'proactive_penalty' ? 'none' : 'block';
+    if (cardPenalty) cardPenalty.style.display = mon.activeMode === 'success_fee' ? 'none' : 'block';
+
+    // Modality B: Penalty Details
+    const penaltyToggle = document.getElementById('penaltyToggle');
+    const penaltyDetails = document.getElementById('penaltyDetails');
+    const presetSelect = document.getElementById('penaltyPresetSelect');
+    const customField = document.getElementById('penaltyCustomField');
+    const customInput = document.getElementById('penaltyAmountInput');
+    const missedCountEl = document.getElementById('missedDaysCount');
+
+    if (penaltyToggle) penaltyToggle.checked = !!mon.penaltyEnabled;
+    if (penaltyDetails) {
+      if (penaltyToggle && penaltyToggle.checked) {
+        penaltyDetails.classList.remove('hidden');
+      } else {
+        penaltyDetails.classList.add('hidden');
+      }
+    }
+
+    const currentPenalty = Number(mon.penaltyAmount) || 15;
+    if (presetSelect) {
+      if ([15, 30, 50].includes(currentPenalty)) {
+        presetSelect.value = String(currentPenalty);
+        if (customField) customField.style.display = 'none';
+      } else {
+        presetSelect.value = 'custom';
+        if (customField) customField.style.display = 'block';
+      }
+    }
+    if (customInput) customInput.value = currentPenalty;
+    if (missedCountEl) {
+      missedCountEl.textContent = Array.isArray(mon.missedDaysLedger) ? mon.missedDaysLedger.length : 0;
+    }
+
+    // Total Pending Settlement
+    const pendingAmountEl = document.getElementById('pendingSettlementAmount');
+    const basePending = Number(mon.pendingSettlement) || 0;
+    const includeSuccessFee = mon.activeMode !== 'proactive_penalty';
+    const totalPending = basePending + (includeSuccessFee ? cycleFee : 0);
+    if (pendingAmountEl) {
+      pendingAmountEl.textContent = BillingEngine.formatCurrency(totalPending, p.currency, p.symbol);
+    }
+  }
+
+  // Settlement Ledger Table
+  const tbody = document.getElementById('settlementTableBody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    const history = mon.settlementHistory || [];
+    if (history.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#4e5b6e;">NO HAY PAGOS REGISTRADOS // BALANCE AL DÍA</td></tr>';
+      return;
+    }
+
+    history.forEach(item => {
+      const tr = document.createElement('tr');
+      const dateStr = new Date(item.timestamp).toLocaleString('es-ES', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      tr.innerHTML = `
+        <td>${dateStr}</td>
+        <td><span class="source-badge source-stripe">${escapeHtml((item.type || 'SUCCESS_FEE').toUpperCase())}</span></td>
+        <td>${escapeHtml((item.cycle || 'DAILY').toUpperCase())}</td>
+        <td><strong>${BillingEngine.formatCurrency(item.amount, item.currency || 'EUR')}</strong></td>
+        <td style="font-family: var(--font-mono); font-size: 11px; color: var(--cyan);">${escapeHtml(item.stripeReference || 'STRIPE CHECKOUT')}</td>
+        <td><span class="status-tag confirmed">LIQUIDADO</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 }
 
@@ -529,20 +619,106 @@ function setupEventListeners() {
     await refreshDashboard();
   });
 
-  // Penalty Toggle
-  document.getElementById('penaltyToggle').addEventListener('change', async (e) => {
-    if (!appState.monetization) appState.monetization = {};
-    appState.monetization.penaltyEnabled = e.target.checked;
-    appState.monetization.penaltyAccepted = e.target.checked;
-    await StorageService.setState(appState);
-    await refreshDashboard();
-  });
+  // Monetization Controls
+  const modeSelect = document.getElementById('monetizationModeSelect');
+  if (modeSelect) {
+    modeSelect.addEventListener('change', async (e) => {
+      if (!appState.monetization) appState.monetization = {};
+      appState.monetization.activeMode = e.target.value;
+      await StorageService.setState(appState);
+      await refreshDashboard();
+    });
+  }
 
-  document.getElementById('penaltyAmountInput').addEventListener('change', async (e) => {
-    if (!appState.monetization) appState.monetization = {};
-    appState.monetization.penaltyAmount = Number(e.target.value) || 15;
-    await StorageService.setState(appState);
-  });
+  const cycleSelect = document.getElementById('monetizationCycleSelect');
+  if (cycleSelect) {
+    cycleSelect.addEventListener('change', async (e) => {
+      if (!appState.monetization) appState.monetization = {};
+      appState.monetization.billingCycle = e.target.value;
+      await StorageService.setState(appState);
+      await refreshDashboard();
+    });
+  }
+
+  // Penalty Toggle
+  const penaltyToggle = document.getElementById('penaltyToggle');
+  if (penaltyToggle) {
+    penaltyToggle.addEventListener('change', async (e) => {
+      if (!appState.monetization) appState.monetization = {};
+      appState.monetization.penaltyEnabled = e.target.checked;
+      appState.monetization.penaltyAccepted = e.target.checked;
+      if (e.target.checked && !appState.monetization.commitmentStartDate) {
+        appState.monetization.commitmentStartDate = new Date().toISOString();
+      }
+      await StorageService.setState(appState);
+      await refreshDashboard();
+    });
+  }
+
+  const presetSelect = document.getElementById('penaltyPresetSelect');
+  const customField = document.getElementById('penaltyCustomField');
+  const customInput = document.getElementById('penaltyAmountInput');
+
+  if (presetSelect) {
+    presetSelect.addEventListener('change', async (e) => {
+      if (!appState.monetization) appState.monetization = {};
+      if (e.target.value === 'custom') {
+        if (customField) customField.style.display = 'block';
+      } else {
+        if (customField) customField.style.display = 'none';
+        appState.monetization.penaltyAmount = Number(e.target.value);
+        await StorageService.setState(appState);
+        await refreshDashboard();
+      }
+    });
+  }
+
+  if (customInput) {
+    customInput.addEventListener('change', async (e) => {
+      if (!appState.monetization) appState.monetization = {};
+      appState.monetization.penaltyAmount = Number(e.target.value) || 15;
+      await StorageService.setState(appState);
+      await refreshDashboard();
+    });
+  }
+
+  // Open Stripe Checkout Payment Link
+  const btnStripePay = document.getElementById('btnOpenStripeCheckout');
+  if (btnStripePay) {
+    btnStripePay.addEventListener('click', () => {
+      const mon = appState.monetization || {};
+      const baseUrl = mon.merchantPaymentLink || 'https://buy.stripe.com/6oUcN50Xyfty6s83OVb3q05';
+      const checkoutUrl = typeof MonetizationService !== 'undefined'
+        ? MonetizationService.buildCheckoutUrl(baseUrl, { clientReferenceId: 'usr_' + Date.now() })
+        : baseUrl;
+      window.open(checkoutUrl, '_blank');
+    });
+  }
+
+  // Record Manual Settlement / Stripe Confirmation
+  const settleForm = document.getElementById('recordSettlementForm');
+  if (settleForm) {
+    settleForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = Number(document.getElementById('settleAmountInput').value) || 0;
+      const ref = document.getElementById('settleRefInput').value.trim() || 'Stripe Checkout';
+
+      if (typeof MonetizationService !== 'undefined') {
+        MonetizationService.applySettlement(appState, {
+          amount,
+          stripeReference: ref,
+          type: appState.monetization.activeMode === 'proactive_penalty' ? 'penalty' : 'success_fee',
+          cycle: appState.monetization.billingCycle || 'daily'
+        });
+      }
+
+      await StorageService.setState(appState);
+      document.getElementById('settleAmountInput').value = '';
+      document.getElementById('settleRefInput').value = '';
+      await refreshDashboard();
+      alert(`✓ Pago registrado exitosamente por importe de ${BillingEngine.formatCurrency(amount, appState.dailyGoal.currency)}.\nReferencia: ${ref}`);
+    });
+  }
 }
 
 async function simulateAndAdd(type, amount) {

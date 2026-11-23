@@ -351,49 +351,188 @@
         </div>
       </section>
 
-      <!-- TAB 5: MODELO COMERCIAL -->
+      <!-- TAB 5: MODELO COMERCIAL & LIQUIDACIÓN -->
       <section class="console-tab" id="tab-monetization">
+        <!-- Stripe Merchant Status Card -->
         <div class="hud-card">
-          <div class="card-tag">MODELO DE MONETIZACIÓN // BASE COMERCIAL</div>
-          <h3 class="card-heading">Cálculo del Fee Comercial (3%)</h3>
-          <p class="card-explainer">
-            Base comercial del 3% sobre la facturación diaria registrada. En este MVP v0 el cálculo es puramente informativo y transparente (sin cargos en cuenta).
-          </p>
-          <div class="fee-telemetry-box">
-            <div class="telemetry-row">
-              <span>Facturación total registrada:</span>
-              <strong id="monetizationTotalRev">0.00 €</strong>
+          <div class="card-header-flex">
+            <div>
+              <div class="card-tag">PASARELA DE COBRO OFICIAL // STRIPE MERCHANT LIVE</div>
+              <h3 class="card-heading">Cuenta de Stripe del Creador (Jorge)</h3>
+              <p class="card-explainer">
+                Liquidación oficial y canal directo de cobro mediante Stripe Checkout y Payment Links oficiales.
+              </p>
             </div>
-            <div class="telemetry-row">
-              <span>Fee comercial estimado (3%):</span>
-              <strong class="highlight-cyan" id="monetizationFeeRev">0.00 €</strong>
+            <div class="merchant-badge">
+              <span class="pulse-dot"></span>
+              <span>STRIPE LIVE CONNECTED</span>
+            </div>
+          </div>
+
+          <div class="stripe-meta-grid">
+            <div class="stripe-meta-item">
+              <div class="stripe-meta-label">CLAVE PÚBLICA (PUBLISHABLE KEY)</div>
+              <div class="stripe-meta-val" id="stripeMerchantPkDisplay">pk_live_51ROSkRHVYSsld6jc...100O1tRqOTI</div>
+            </div>
+            <div class="stripe-meta-item">
+              <div class="stripe-meta-label">PASARELA OFICIAL DE PAGO</div>
+              <div class="stripe-meta-val">
+                <a href="https://buy.stripe.com/6oUcN50Xyfty6s83OVb3q05" target="_blank" style="color: var(--cyan); text-decoration: underline;" id="merchantLinkAnchor">buy.stripe.com/6oUcN50Xyfty6s83OVb3q05</a>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Billing Cycle & Modality Selection -->
         <div class="hud-card">
-          <div class="card-tag">EXPERIMENTO // PENALIZACIÓN VOLUNTARIA</div>
-          <h3 class="card-heading">Compromiso Económico Opcional</h3>
+          <div class="card-tag">PARÁMETROS DE FACTURACIÓN // FRECUENCIA & MODALIDAD</div>
+          <h3 class="card-heading">Ciclo de Liquidación y Modalidad Activa</h3>
+          <p class="card-explainer">Define la frecuencia con la que se evalúan los objetivos y se liquidan los compromisos.</p>
+
+          <div class="tx-input-grid">
+            <div class="grid-field">
+              <label>MODALIDAD DE COBRO</label>
+              <select id="monetizationModeSelect">
+                <option value="hybrid">Híbrido: Cuota por Éxito (3%) + Penalización Proactiva</option>
+                <option value="success_fee">Solo Cuota por Éxito (3% de facturación lograda)</option>
+                <option value="proactive_penalty">Solo Compromiso Proactivo ("Skin in the Game")</option>
+              </select>
+            </div>
+            <div class="grid-field">
+              <label>CICLO DE LIQUIDACIÓN</label>
+              <select id="monetizationCycleSelect">
+                <option value="daily">Diario (Cierre diario a las 23:59)</option>
+                <option value="weekly">Semanal (Corte los domingos)</option>
+                <option value="monthly">Mensual (Cierre a fin de mes)</option>
+              </select>
+            </div>
+            <div class="grid-field span-2">
+              <label>PERÍODO VIGENTE DEL CICLO</label>
+              <input type="text" id="cycleDatesDisplay" value="Calculando período..." readonly style="color: var(--cyan); background: rgba(0, 229, 255, 0.05);">
+            </div>
+          </div>
+        </div>
+
+        <!-- Modality A: 3% Success Fee -->
+        <div class="hud-card" id="cardSuccessFee">
+          <div class="card-tag">MODALIDAD A // ÉXITO COMPARTIDO</div>
+          <h3 class="card-heading">Cuota del 3% sobre Facturación Neta Auditada</h3>
           <p class="card-explainer">
-            Mecanismo opcional de penalización simbólica por incumplimiento. Estrictamente optativo y no coercitivo.
+            Solo aportas un 3% cuando FocusRevenue te ayuda a desbloquear facturación real de clientes en Stripe o PayPal. Si no facturas, el software es 100% gratuito.
+          </p>
+
+          <div class="fee-telemetry-box">
+            <div class="telemetry-row">
+              <span>Facturación auditada del ciclo actual:</span>
+              <strong id="monetizationCycleRev">0.00 €</strong>
+            </div>
+            <div class="telemetry-row">
+              <span>Cuota por éxito calculada (3%):</span>
+              <strong class="highlight-cyan" id="monetizationCycleFee">0.00 €</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modality B: Proactive Penalty / Commitment -->
+        <div class="hud-card" id="cardPenalty">
+          <div class="card-tag">MODALIDAD B // COMPROMISO PROACTIVO ("SKIN IN THE GAME")</div>
+          <h3 class="card-heading">Penalización Acordada por Incumplimiento</h3>
+          <p class="card-explainer">
+            Compromiso ético voluntario. Si termina el ciclo sin alcanzar la meta económica y sin activar anulación de emergencia, se devenga una penalización acordada.
           </p>
 
           <div class="penalty-toggle-area">
             <label class="hud-switch-row">
               <input type="checkbox" id="penaltyToggle">
               <span class="hud-slider"></span>
-              <span class="switch-txt">Habilitar experimento de penalización voluntaria</span>
+              <span class="switch-txt">Habilitar penalización acordada voluntaria</span>
             </label>
 
             <div id="penaltyDetails" class="penalty-expanded hidden">
               <p class="penalty-notice">
-                AVISO DE CONSENTIMIENTO: Esta modalidad no realiza débitos reales en tu cuenta bancaria en este prototipo.
+                🔒 CONSENTIMIENTO ACTIVO: Al activar esta opción, declaras tu voluntad expresa de autodisciplinarte mediante consecuencias financieras reales.
               </p>
-              <div class="grid-field">
-                <label>PENALIZACIÓN SIMULADA POR DÍA INCUMPLIDO (€)</label>
-                <input type="number" id="penaltyAmountInput" value="15" min="1">
+              <div class="grid-field" style="margin-bottom: 12px;">
+                <label>IMPORTE DE LA PENALIZACIÓN POR DÍA INCUMPLIDO (€)</label>
+                <select id="penaltyPresetSelect">
+                  <option value="15">15.00 € (Estándar recomendado)</option>
+                  <option value="30">30.00 € (Alta intensidad)</option>
+                  <option value="50">50.00 € (Compromiso radical)</option>
+                  <option value="custom">Personalizado...</option>
+                </select>
+              </div>
+              <div class="grid-field" id="penaltyCustomField" style="display: none; margin-bottom: 12px;">
+                <label>IMPORTE PERSONALIZADO (€)</label>
+                <input type="number" id="penaltyAmountInput" value="15" min="1" step="any">
+              </div>
+              <div class="telemetry-row" style="padding: 8px 0;">
+                <span>Días incumplidos registrados en el ciclo:</span>
+                <strong id="missedDaysCount" style="color: var(--amber);">0</strong>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Settlement Terminal & Stripe Checkout -->
+        <div class="hud-card settlement-card">
+          <div class="card-tag">TERMINAL DE LIQUIDACIÓN // STRIPE CHECKOUT</div>
+          <h3 class="card-heading">Abonar Cuota o Penalización Pendiente</h3>
+          <p class="card-explainer">
+            Realiza el pago directamente a través del portal seguro de Stripe Checkout. Todos los fondos se procesan bajo cifrado bancario TLS.
+          </p>
+
+          <div class="settlement-summary">
+            <div>
+              <div class="stripe-meta-label">TOTAL PENDIENTE DE LIQUIDACIÓN</div>
+              <div style="font-family: var(--font-mono); font-size: 26px; font-weight: 800; color: var(--cyan);" id="pendingSettlementAmount">0.00 €</div>
+              <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px;">Cuota 3% acumulada + penalizaciones pendientes</div>
+            </div>
+            <div>
+              <button class="btn-stripe-pay" id="btnOpenStripeCheckout">
+                <span>PAGAR CON STRIPE</span>
+                <span>➔</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Manual Confirmation Form -->
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+            <div class="card-tag">REGISTRAR JUSTIFICANTE DE PAGO STRIPE</div>
+            <form id="recordSettlementForm" class="tx-input-grid" style="margin-top: 10px;">
+              <div class="grid-field">
+                <label>IMPORTE ABONADO (€)</label>
+                <input type="number" id="settleAmountInput" placeholder="Ej: 15.00" min="0.5" step="any" required>
+              </div>
+              <div class="grid-field">
+                <label>REFERENCIA O ID DE STRIPE</label>
+                <input type="text" id="settleRefInput" placeholder="Ej: Stripe Checkout / pi_... / cs_..." required>
+              </div>
+              <div class="grid-actions span-2">
+                <button type="submit" class="btn-cyan-action">CONFIRMAR Y SALDAR PENDIENTE</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Ledger Table of Settlements -->
+        <div class="hud-card">
+          <div class="card-tag">HISTORIAL DE LIQUIDACIONES Y PAGOS // LIBRO MAYOR</div>
+          <div class="table-container" style="margin-top: 12px;">
+            <table class="hud-table">
+              <thead>
+                <tr>
+                  <th>TIMESTAMP</th>
+                  <th>MODALIDAD</th>
+                  <th>CICLO</th>
+                  <th>IMPORTE</th>
+                  <th>REFERENCIA STRIPE</th>
+                  <th>ESTADO</th>
+                </tr>
+              </thead>
+              <tbody id="settlementTableBody">
+                <!-- Rows injected dynamically -->
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -404,6 +543,7 @@
   <script src="../lib/billing.js"></script>
   <script src="../lib/rules.js"></script>
   <script src="../lib/payments.js"></script>
+  <script src="../lib/monetization.js"></script>
   <script src="dashboard.js"></script>
 </body>
 </html>

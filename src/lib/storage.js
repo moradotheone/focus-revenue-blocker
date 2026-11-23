@@ -70,10 +70,18 @@ const DEFAULT_STATE = {
     autoSyncMinutes: 15
   },
   monetization: {
+    merchantStripePublishableKey: 'pk_live_51ROSkRHVYSsld6jc5I50FHvFKhb2XK7mW2HvZX78EoGEAXmDhCuMlwBNcd2nZifldUpjVWxyO7lo6KEDRh3RnmS100O1tRqOTI',
+    merchantPaymentLink: 'https://buy.stripe.com/6oUcN50Xyfty6s83OVb3q05',
+    activeMode: 'hybrid', // 'success_fee' | 'proactive_penalty' | 'hybrid'
+    billingCycle: 'daily', // 'daily' | 'weekly' | 'monthly'
     feePercentage: 3.0,
     penaltyEnabled: false,
     penaltyAmount: 15.00,
-    penaltyAccepted: false
+    penaltyAccepted: false,
+    commitmentStartDate: null,
+    pendingSettlement: 0.00,
+    settlementHistory: [],
+    missedDaysLedger: []
   }
 };
 
@@ -133,7 +141,62 @@ const StorageService = {
       modified = true;
     }
 
+    // Ensure monetization structure exists and has updated fields
+    if (!state.monetization) {
+      state.monetization = JSON.parse(JSON.stringify(DEFAULT_STATE.monetization));
+      modified = true;
+    } else {
+      if (!state.monetization.merchantStripePublishableKey) {
+        state.monetization.merchantStripePublishableKey = DEFAULT_STATE.monetization.merchantStripePublishableKey;
+        modified = true;
+      }
+      if (!state.monetization.merchantPaymentLink) {
+        state.monetization.merchantPaymentLink = DEFAULT_STATE.monetization.merchantPaymentLink;
+        modified = true;
+      }
+      if (!state.monetization.billingCycle) {
+        state.monetization.billingCycle = 'daily';
+        modified = true;
+      }
+      if (!state.monetization.activeMode) {
+        state.monetization.activeMode = 'hybrid';
+        modified = true;
+      }
+      if (typeof state.monetization.pendingSettlement !== 'number') {
+        state.monetization.pendingSettlement = 0.00;
+        modified = true;
+      }
+      if (!Array.isArray(state.monetization.settlementHistory)) {
+        state.monetization.settlementHistory = [];
+        modified = true;
+      }
+      if (!Array.isArray(state.monetization.missedDaysLedger)) {
+        state.monetization.missedDaysLedger = [];
+        modified = true;
+      }
+    }
+
     if (state.dailyGoal.date !== today) {
+      // Check if previous day missed goal for penalty evaluation
+      if (state.monetization && state.monetization.penaltyEnabled && state.monetization.penaltyAccepted) {
+        const prevDate = state.dailyGoal.date;
+        const prevTxs = (state.transactions || []).filter(t => t.date === prevDate && (t.isConfirmed || t.source !== 'invoice_issued'));
+        const achieved = prevTxs.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+        const goal = Number(state.dailyGoal.targetAmount) || 200;
+        const hadEmergency = state.emergencyExit && state.emergencyExit.isActive;
+
+        if (achieved < goal && !hadEmergency) {
+          const penalty = Number(state.monetization.penaltyAmount) || 15.00;
+          state.monetization.missedDaysLedger.push({
+            date: prevDate,
+            penaltyAmount: penalty,
+            reason: `Meta no cumplida (${achieved.toFixed(2)}€ / ${goal.toFixed(2)}€)`,
+            timestamp: new Date().toISOString()
+          });
+          state.monetization.pendingSettlement = Math.round(((state.monetization.pendingSettlement || 0) + penalty) * 100) / 100;
+        }
+      }
+
       state.dailyGoal.date = today;
       state.emergencyExit.isActive = false;
       state.emergencyExit.expiresAt = 0;

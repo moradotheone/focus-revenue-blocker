@@ -968,3 +968,94 @@ body {
 .hidden {
   display: none !important;
 }
+
+
+/* Stripe Merchant HUD styles */
+.merchant-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 245, 155, 0.1);
+  border: 1px solid rgba(0, 245, 155, 0.4);
+  color: var(--green);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.8px;
+}
+
+.merchant-badge .pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--green);
+}
+
+.stripe-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.stripe-meta-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  padding: 10px 12px;
+}
+
+.stripe-meta-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.stripe-meta-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #ffffff;
+  word-break: break-all;
+}
+
+.settlement-card {
+  border-color: rgba(0, 229, 255, 0.3) !important;
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.03) 0%, rgba(10, 14, 22, 0.8) 100%) !important;
+}
+
+.settlement-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-stripe-pay {
+  background: #635bff;
+  color: #ffffff;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-stripe-pay:hover {
+  background: #7a73ff;
+  box-shadow: 0 0 15px rgba(99, 91, 255, 0.5);
+  transform: translateY(-1px);
+}
